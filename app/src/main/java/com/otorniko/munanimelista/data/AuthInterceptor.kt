@@ -5,7 +5,7 @@ import okhttp3.Response
 
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val myHardcodedToken = "TODO"
+        val myHardcodedToken = "my-hardcoded-token" // TODO älä pushaa gittii
         val request = chain.request().newBuilder()
             .addHeader("Authorization", "Bearer $myHardcodedToken")
             .build()
