@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "352532347484",
+    "project_id": "mun-anime-lista",
+    "storage_bucket": "mun-anime-lista.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352532347484:android:210906e660ab55f2090499",
+        "android_client_info": {
+          "package_name": "com.otorniko.munanimelista"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYSbyDhopEKoIgcgpJxyUomGKwR_h57no"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
