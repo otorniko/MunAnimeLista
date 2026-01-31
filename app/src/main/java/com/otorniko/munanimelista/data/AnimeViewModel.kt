@@ -1,38 +1,50 @@
 package com.otorniko.munanimelista.data
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import kotlin.coroutines.cancellation.CancellationException
 
-class AnimeViewModel : ViewModel() {
-
-    // 1. MASTER DATA (The Truth)
+class AnimeViewModel(application: Application) : AndroidViewModel(application) {
+    private val tokenManager = TokenManager(application)
     private var _masterList = listOf<AnimeNode>()
-
-    // 2. SETTINGS (The Rules)
-    private var currentFilter: ListStatus? = null
+    private val _currentFilter = MutableStateFlow<ListStatus?>(null)
+    val currentFilter = _currentFilter.asStateFlow()
     private var currentSort: AnimeSortOrder = AnimeSortOrder.TITLE
-
-    // 3. UI STATE (The Result)
     private val _animeList = MutableStateFlow<List<AnimeNode>>(emptyList())
-    val animeList: StateFlow<List<AnimeNode>> = _animeList.asStateFlow()
-
-    // 2. NETWORK SETUP (Singleton-like pattern inside the ViewModel)
-    // We create the JSON parser once here to fix that warning you saw.
+    private val _searchResults = MutableStateFlow<List<AnimeNode>?>(null)
+    val visibleList = combine(_animeList, _searchResults) { myAnime, searchResults ->
+        searchResults ?: myAnime
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val json = Json { ignoreUnknownKeys = true }
-
+    private val api by lazy { retrofit.create(MalApi::class.java) }
+    private val _browseList = MutableStateFlow<List<AnimeNode>>(emptyList())
+    val browseList = _browseList.asStateFlow()
+    private var currentBrowseOffset = 0
+    private var currentRankingType: String = "all"
+    var isBrowseLoading by mutableStateOf(false)
+    var currentSortType by mutableStateOf(SortType.LAST_UPDATED) // Default
+    var isSortAscending by mutableStateOf(false)
     private val retrofit by lazy {
         val client = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor())
+            .addInterceptor(AuthInterceptor(tokenManager))
             .build()
 
         Retrofit.Builder()
@@ -41,35 +53,86 @@ class AnimeViewModel : ViewModel() {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
+    fun initBrowse(rankingType: String) {
+        if (currentRankingType == rankingType && _browseList.value.isNotEmpty()) return
 
-    private val api by lazy { retrofit.create(MalApi::class.java) }
-
-    // 3. INIT: Fetch data immediately when ViewModel is created
-    init {
-        fetchAnime()
+        currentRankingType = rankingType
+        _browseList.value = emptyList()
+        currentBrowseOffset = 0
+        loadMoreBrowse()
     }
 
-    private fun fetchAnime() {
+    fun loadMoreBrowse() {
+        if (isBrowseLoading) return
+        isBrowseLoading = true
+
+        viewModelScope.launch {
+            try {
+                // Reuse your existing API instance!
+                val response = api.getTopAnime(
+                    type = currentRankingType,
+                    offset = currentBrowseOffset,
+                    limit = 50
+                )
+
+                val newNodes = response.data.map { it.node }
+                _browseList.value += newNodes
+                currentBrowseOffset += 50
+
+            } catch (e: Exception) {
+                Log.e("Browse", "Failed to load", e)
+            } finally {
+                isBrowseLoading = false
+            }
+        }
+    }
+
+    init {
+        refresh()
+    }
+
+    fun refresh() {
         viewModelScope.launch {
             try {
                 val response = api.getUserAnimeList()
-                val nodes = response.data.map { it.node }
-
-                // Save to Master
+                val nodes = response.data.map { edge ->
+                    edge.node.copy(myListStatus = edge.listStatus)
+                }
                 _masterList = nodes
-
-                // Run the pipeline for the first time
                 processList()
-
             } catch (e: Exception) {
                 Log.e("AnimeViewModel", "Error fetching data", e)
             }
         }
     }
 
+    private var searchJob: Job? = null
+    fun search(query: String) {
+        searchJob?.cancel()
+        if (query.isBlank()) {
+            _searchResults.value = null
+            return
+        }
+        searchJob = viewModelScope.launch {
+            delay(500)
+            try {
+                val response = api.searchAnime(query = query)
+                val nodes: List<AnimeNode> = response.data.map { it.node }
+                _searchResults.value = nodes
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                Log.e("AnimeViewModel", "Search failed", e)
+            }
+        }
+    }
+
+    fun clearSearch() {
+        _searchResults.value = null
+    }
+
     fun filterByStatus(status: ListStatus?) {
-        currentFilter = status
-        processList() // Don't calculate here, just ask the pipeline to run
+        _currentFilter.value = status
+        processList()
     }
 
     fun changeSortOrder(order: AnimeSortOrder) {
@@ -77,26 +140,45 @@ class AnimeViewModel : ViewModel() {
         processList()
     }
 
-    // --- THE PIPELINE (The Brains) ---
-    // This function combines all rules to produce the final list
     private fun processList() {
+        val filter = _currentFilter.value
         var result = _masterList
-
-        // Step 1: Apply Filter (if any)
-        if (currentFilter != null) {
-            result = result.filter { it.myListStatus?.status == currentFilter }
+        if (filter != null) {
+            result = result.filter { it.myListStatus?.status == filter }
         }
 
-        // Step 2: Apply Sort
-        result = when (currentSort) {
-            AnimeSortOrder.TITLE -> result.sortedBy { it.title }
-            AnimeSortOrder.SCORE -> result.sortedByDescending { it.mean }
+        result = when (currentSortType) {
+            SortType.TITLE -> {
+                if (isSortAscending) result.sortedBy { it.title.lowercase() }
+                else result.sortedByDescending { it.title.lowercase() }
+            }
+            SortType.SCORE -> {
+                if (isSortAscending) result.sortedBy { it.mean ?: 0.0 }
+                else result.sortedByDescending { it.mean ?: 0.0 }
+            }
+            SortType.LAST_UPDATED -> {
+                if (isSortAscending) result.sortedBy { it.myListStatus?.updatedAt }
+                else result.sortedByDescending { it.myListStatus?.updatedAt }
+            }
         }
 
-        // Step 3: Publish to UI
         _animeList.value = result
     }
+
+    fun onSortClicked(newType: SortType) {
+        if (currentSortType == newType) {
+            isSortAscending = !isSortAscending
+        } else {
+            currentSortType = newType
+
+            isSortAscending = (newType == SortType.TITLE)
+        }
+        processList()
+    }
+
 }
 
-// Helper Enum for Sort (if you don't have it yet)
 enum class AnimeSortOrder { TITLE, SCORE }
+enum class SortType {
+    TITLE, SCORE, LAST_UPDATED
+}

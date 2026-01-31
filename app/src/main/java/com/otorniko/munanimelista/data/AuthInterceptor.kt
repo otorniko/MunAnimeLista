@@ -3,11 +3,16 @@ package com.otorniko.munanimelista.data
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor : Interceptor {
+
+class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val myHardcodedToken = "my-hardcoded-token" // TODO älä pushaa gittii
+        val original = chain.request()
+        val token = tokenManager.getToken()
+        if (token == null) {
+            return chain.proceed(original)
+        }
         val request = chain.request().newBuilder()
-            .addHeader("Authorization", "Bearer $myHardcodedToken")
+            .addHeader("Authorization", "Bearer $token")
             .build()
         return chain.proceed(request)
     }
