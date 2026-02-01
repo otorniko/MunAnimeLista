@@ -22,9 +22,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -36,7 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,14 +52,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.otorniko.munanimelista.data.AnimeDetailsViewModel
 import com.otorniko.munanimelista.data.MediaType
+import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
+import com.otorniko.munanimelista.ui.theme.BrandLightBlue
+import com.otorniko.munanimelista.ui.theme.White
 import com.otorniko.munanimelista.utils.getDisplayTitles
 import com.otorniko.munanimelista.utils.getSeasonString
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,87 +84,123 @@ fun AnimeDetailsScreen(
     val anime = animeState
     val (title, subtitle) = remember(anime) { anime.getDisplayTitles() }
 
-    Scaffold(topBar = {
-        TopAppBar(title = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                Row() {
-                    Text(
-                        title,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                }
-                if (subtitle != null) {
-                    Row() {
-                        Text(subtitle)
-
+    Scaffold(
+        containerColor = BrandLightBlue,
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = BrandDarkBlue,
+                    titleContentColor = White,
+                    navigationIconContentColor = White,
+                    actionIconContentColor = White
+                ),
+                title = {
+                    Box(modifier = Modifier.clickable {}) {
+                        Text(
+                            "Mun Anime Lista",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
+            )
+        }, floatingActionButton = {
+            if (anime != null) {
+                ExtendedFloatingActionButton(text = {
+                    Text(if (anime.myListStatus == null) "Add to List" else "Edit Status")
+                }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true }, containerColor = BrandDarkBlue,
+                    contentColor = White)
             }
-
-        }, navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-            }
-        })
-    }, floatingActionButton = {
-        if (anime != null) {
-            ExtendedFloatingActionButton(text = {
-                Text(if (anime.myListStatus == null) "Add to List" else "Edit Status")
-            }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true })
         }
-    }
 
     ) { innerPadding ->
-        if (animeState == null) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            val anime = animeState!!
-            val safeRelatedAnime = remember(anime.relatedAnime) {
-                anime.relatedAnime.filter { item ->
-                    val type = item.relationType.lowercase()
-                    type != "adaptation" && type != "source" && item.node.mediaType != MediaType.MUSIC
+        androidx.compose.material3.Surface(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            color = BrandLightBlue
+        ) {
+            if (animeState == null) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
-            }
+            } else {
+                val anime = animeState!!
+                val safeRelatedAnime = remember(anime.relatedAnime) {
+                    anime.relatedAnime.filter { item ->
+                        val type = item.relationType.lowercase()
+                        type != "adaptation" && type != "source" && item.node.mediaType != MediaType.MUSIC
+                    }
+                }
 
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ) {
-                Row(modifier = Modifier.height(200.dp)) {
-                    AsyncImage(
-                        model = anime.mainPicture?.large ?: anime.mainPicture?.medium,
-                        contentDescription = null,
+                Column(
+                    modifier = Modifier
+                        //.padding(innerPadding)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    Box(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .aspectRatio(0.7f)
-                            .clip(MaterialTheme.shapes.medium),
-                        contentScale = ContentScale.Crop
-                    )
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                    if (subtitle != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            contentAlignment = Alignment.CenterStart
                         ) {
                             Text(
-                                text = "Score: ${anime.mean ?: "N/A"}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(vertical = 14.dp)
+                                text = subtitle,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
 
+                    Row(modifier = Modifier.height(200.dp)) {
+                        AsyncImage(
+                            model = anime.mainPicture?.large ?: anime.mainPicture?.medium,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(0.7f)
+                                .clip(MaterialTheme.shapes.medium),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column {
+                            val score = "Score ${anime.mean ?: "N/A"}"
+                            val myScore = "Me: ${anime.myListStatus?.score ?: "N/A"}"
+                            Text(
+                                text = "$score  •  $myScore",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            val rankText = "Rank: #${anime.rank ?: "N/A"}"
+                            val popText = "Popularity: #${anime.popularity ?: "N/A"}"
+                            Text(
+                                text = "$rankText  •  $popText",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             SuggestionChip(onClick = {}, label = {
                                 val type = anime.mediaType?.name?.uppercase() ?: "TV"
@@ -167,226 +210,225 @@ fun AnimeDetailsScreen(
                                 Text(
                                     text = if (showCount) "$type • ${eps ?: "?"} eps" else type
                                 )
-                            })
-                        }
+                            },colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = BrandDarkBlue
+                                    .copy(alpha = 0.1f),
+                                labelColor = BrandDarkBlue
+                            ),
+                                //border = null
+                                )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            var displayText = "Unaired"
+                            if (anime.startDate != null) {
+                                val startStr = remember(anime.startSeason) {
+                                    anime.startSeason?.let {
+                                        "${it.season} ${it.year}"
+                                    }
+                                }
+                                val endStr = remember(anime.endDate) {
+                                    getSeasonString(anime.endDate)
+                                }
+                                displayText = when {
+                                    endStr == null -> "$startStr - Present"
+                                    startStr == endStr -> startStr
+                                    else -> "$startStr - $endStr"
+                                }
+                                Text(
+                                    text = displayText,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    maxLines = 2,
+                                    minLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        val rankText = "Rank: #${anime.rank ?: "N/A"}"
-                        val popText = "Popularity: #${anime.popularity ?: "N/A"}"
-                        Text(
-                            text = "$rankText  •  $popText",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        // Studio
+                        val studioName = anime.studios?.firstOrNull()?.name ?: "Unknown"
+                        AnimeInfoItem(
+                            icon = Icons.Default.Business,
+                            label = "Studio",
+                            value = studioName,
+                            modifier = Modifier.weight(1f)
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-                        var displayText = "Unaired"
-                        if (anime.startDate != null) {
-                            val startStr = remember(anime.startSeason) {
-                                anime.startSeason?.let {
-                                    "${it.season} ${it.year}"
-                                }
-                            }
-                            val endStr = remember(anime.endDate) {
-                                getSeasonString(anime.endDate)
-                            }
-                            displayText = when {
-                                endStr == null -> "$startStr - Present"
-                                startStr == endStr -> startStr
-                                else -> "$startStr - $endStr"
-                            }
-                            Text(
-                                text = displayText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(vertical = 4.dp),
-                                maxLines = 2,
-                                minLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                        // Source
+                        val sourceName = anime.source?.replace("_", " ")
+                            ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                            ?: "-"
+                        AnimeInfoItem(
+                            icon = Icons.AutoMirrored.Filled.MenuBook,
+                            label = "Source",
+                            value = sourceName,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.Top
+                        // Rating
+                        val ratingName = anime.rating?.label?.split(" -")?.get(0) ?: "-"
+                        AnimeInfoItem(
+                            icon = Icons.Default.Warning,
+                            label = "Rating", value = ratingName,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (!anime.genres.isNullOrEmpty()) {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // Studio
-                            val studioName = anime.studios?.firstOrNull()?.name ?: "Unknown"
-                            AnimeInfoItem(
-                                icon = Icons.Default.Business,
-                                label = "Studio",
-                                value = studioName,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            // Source
-//                            val sourceName = anime.source?.replace("_", " ")
-//                                ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-//                                ?: "-"
-//                            AnimeInfoItem(
-//                                icon = Icons.AutoMirrored.Filled.MenuBook,
-//                                label = "Source",
-//                                value = sourceName,
-//                                modifier = Modifier.weight(1f)
-//                            )
-                            // Rating
-                            val ratingName = anime.rating?.label?.split(" -")?.get(0) ?: "-"
-                            AnimeInfoItem(
-                                icon = Icons.Default.Warning, // Or Icons.Default.Explicit
-                                label = "Rating", value = ratingName,
-                                modifier = Modifier.weight(1f)
-                            )
+                            items(anime.genres) { genre ->
+                                SuggestionChip(
+                                    onClick = { /* Todo: Navigate */ },
+                                    label = { Text(genre.name) },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = BrandDarkBlue
+                                            .copy(alpha = 0.1f),
+                                        labelColor = BrandDarkBlue
+                                    ),
+                                    border = null
+                                )
+                            }
                         }
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
-                if (!anime.genres.isNullOrEmpty()) {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(anime.genres) { genre ->
-                            SuggestionChip(
-                                onClick = { /* Todo: Navigate */ },
-                                label = { Text(genre.name) },
-                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                        alpha = 0.5f
-                                    )
-                                ),
-                                border = null
-                            )
-                        }
+                    Text(
+                        text = "Synopsis",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    val cleanSynopsis = remember(anime.synopsis) {
+                        anime.synopsis?.replace("[Written by MAL Rewrite]", "")
+                            ?.replace(Regex("\\(Source: .*\\)"), "")?.trim()
+                            ?: "No synopsis available."
                     }
+
+                    ExpandableText(
+                        text = cleanSynopsis, modifier = Modifier.fillMaxWidth()
+
+                    )
+
                     Spacer(modifier = Modifier.height(24.dp))
-                }
 
-                Text(
-                    text = "Synopsis",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                val cleanSynopsis = remember(anime.synopsis) {
-                    anime.synopsis?.replace("[Written by MAL Rewrite]", "")
-                        ?.replace(Regex("\\(Source: .*\\)"), "")?.trim() ?: "No synopsis available."
-                }
+                    if (safeRelatedAnime.isNotEmpty()) {
+                        Text(
+                            text = "Related Anime",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                ExpandableText(
-                    text = cleanSynopsis, modifier = Modifier.fillMaxWidth()
-
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (safeRelatedAnime.isNotEmpty()) {
-                    Text(
-                        text = "Related Anime",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(safeRelatedAnime) { related ->
-                            Column(
-                                modifier = Modifier
-                                    .width(100.dp)
-                                    .clickable {
-                                        onAnimeClick(related.node.id)
-                                    }) {
-                                AsyncImage(
-                                    model = related.node.mainPicture?.medium,
-                                    contentDescription = null,
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(safeRelatedAnime) { related ->
+                                Column(
                                     modifier = Modifier
-                                        .height(150.dp)
-                                        .clip(MaterialTheme.shapes.small),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Text(
-                                    text = related.node.alternativeTitles?.en ?: related.node.title,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = related.relationTypeFormatted ?: related.relationType,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-                        }
-                    }
-                }
-                // TODO
-                // No title == not anime?
-                if (anime.recommendations.isNotEmpty()) {
-                    Text(
-                        text = "Recommendations",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(anime.recommendations) { rec ->
-                            Column(
-                                modifier = Modifier
-                                    .width(100.dp)
-                                    .clickable {
-                                        onAnimeClick(rec.node.id)
-                                    }) {
-                                AsyncImage(
-                                    model = rec.node.mainPicture?.medium,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .height(150.dp)
-                                        .clip(MaterialTheme.shapes.small),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Text(
-                                    text = rec.node.alternativeTitles?.en ?: rec.node.title,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    }
-                }
-                if (showSheet && anime != null) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showSheet = false }, sheetState = sheetState
-                    ) {
-                        EditStatusSheet(
-                            initialStatus = anime.myListStatus?.status,
-                            initialScore = anime.myListStatus?.score ?: 0,
-                            initialProgress = anime.myListStatus?.numEpisodesWatched ?: 0,
-                            maxEpisodes = anime.numEpisodes ?: 0,
-                            onDismiss = { showSheet = false },
-                            onSave = { status, score, progress ->
-                                viewModel.updateStatus(status, score, progress)
-                                onStatusChanged()
-                                showSheet = false
-                            },
-                            onDelete = {
-                                viewModel.removeAnime(anime.id) {
-                                    showSheet = false
-                                    onStatusChanged()
+                                        .width(100.dp)
+                                        .clickable {
+                                            onAnimeClick(related.node.id)
+                                        }) {
+                                    AsyncImage(
+                                        model = related.node.mainPicture?.medium,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .height(150.dp)
+                                            .clip(MaterialTheme.shapes.small),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Text(
+                                        text = related.node.alternativeTitles?.en
+                                            ?: related.node.title,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Text(
+                                        text = related.relationTypeFormatted
+                                            ?: related.relationType,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
                                 }
-                            })
+                            }
+                        }
+                    }
+                    // TODO
+                    // No title == not anime?
+                    if (anime.recommendations.isNotEmpty()) {
+                        Text(
+                            text = "Recommendations",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(anime.recommendations) { rec ->
+                                Column(
+                                    modifier = Modifier
+                                        .width(100.dp)
+                                        .clickable {
+                                            onAnimeClick(rec.node.id)
+                                        }) {
+                                    AsyncImage(
+                                        model = rec.node.mainPicture?.medium,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .height(150.dp)
+                                            .clip(MaterialTheme.shapes.small),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Text(
+                                        text = rec.node.alternativeTitles?.en ?: rec.node.title,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (showSheet && anime != null) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showSheet = false }, sheetState = sheetState
+                        ) {
+                            EditStatusSheet(
+                                initialStatus = anime.myListStatus?.status,
+                                initialScore = anime.myListStatus?.score ?: 0,
+                                initialProgress = anime.myListStatus?.numEpisodesWatched ?: 0,
+                                maxEpisodes = anime.numEpisodes ?: 0,
+                                onDismiss = { showSheet = false },
+                                onSave = { status, score, progress ->
+                                    viewModel.updateStatus(status, score, progress)
+                                    onStatusChanged()
+                                    showSheet = false
+                                },
+                                onDelete = {
+                                    viewModel.removeAnime(anime.id) {
+                                        showSheet = false
+                                        onStatusChanged()
+                                    }
+                                })
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ExpandableText(

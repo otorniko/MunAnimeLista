@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.otorniko.munanimelista.data
 
 import kotlinx.serialization.SerialName

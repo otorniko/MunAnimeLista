@@ -15,9 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryScrollableTabRow
@@ -25,7 +27,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,12 +38,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.otorniko.munanimelista.data.AnimeViewModel
 import com.otorniko.munanimelista.data.ListStatus
 import com.otorniko.munanimelista.data.MyListTab
 import com.otorniko.munanimelista.data.SortType
+import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
+import com.otorniko.munanimelista.ui.theme.BrandLightBlue
+import com.otorniko.munanimelista.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,20 +68,20 @@ fun AnimeListScreen(
         viewModel.filterByStatus(initialTab.status)
     }
     Scaffold(
+        containerColor = BrandLightBlue,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = BrandDarkBlue,
+                    titleContentColor = White,
+                    navigationIconContentColor = White,
+                    actionIconContentColor = White
                 ),
                 title = {
                     if (isSearching) {
                         TextField(
                             value = searchText,
-                            onValueChange = {
-                                searchText = it
-                                viewModel.search(it)
-                            },
+                            onValueChange = { /* ... */ },
                             placeholder = { Text("Search...") },
                             singleLine = true,
                             colors = TextFieldDefaults.colors(
@@ -84,10 +90,15 @@ fun AnimeListScreen(
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                         )
                     } else {
-                        Text("Mun Anime Lista")
+                        Text(
+                            "Mun Anime Lista",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 navigationIcon = {
@@ -122,8 +133,8 @@ fun AnimeListScreen(
             SecondaryScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
                 edgePadding = 16.dp,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = BrandDarkBlue,
+                contentColor = White,
                 modifier = Modifier.navigationBarsPadding()
             ) {
                 tabs.forEachIndexed { index, title ->
