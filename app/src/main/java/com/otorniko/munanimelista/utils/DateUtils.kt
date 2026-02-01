@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista
+package com.otorniko.munanimelista.utils
 
 fun getSeasonString(dateStr: String?): String? {
     if (dateStr.isNullOrEmpty()) return null

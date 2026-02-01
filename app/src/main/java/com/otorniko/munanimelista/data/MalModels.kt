@@ -27,9 +27,10 @@ data class AnimeNode(
     @SerialName("start_date") val startDate: String? = null, // Format: "2022-10-10"
     @SerialName("end_date") val endDate: String? = null,
     @SerialName("start_season") val startSeason: StartSeason? = null,
-    val rating: String? = null, // e.g. "pg_13"
+    val rating: Rating? = null, // e.g. "pg_13"
     val studios: List<Studio> = emptyList(),
-    val status: String? = null // e.g. "finished_airing", "currently_airing"
+    val status: String? = null, // e.g. "finished_airing", "currently_airing"
+    val source: String? = null, // e.g. "manga", "original"
 )
 
 @Serializable
@@ -188,4 +189,25 @@ enum class RankingCategory(val label: String, val apiKey: String) {
     SPECIAL("Top Specials", "special"),
     POPULARITY("By Popularity", "bypopularity"),
     FAVORITE("Most Favorited", "favorite");
+}
+
+@Serializable
+enum class Rating(val label: String) {
+    @SerialName("g")
+    G("G - All Ages"),
+
+    @SerialName("pg")
+    PG("PG - Children"),
+
+    @SerialName("pg_13")
+    PG_13("PG-13 - Teens 13 or older"),
+
+    @SerialName("r")
+    R("R - 17+ (violence & profanity)"),
+
+    @SerialName("r+")
+    R_PLUS("R+ - Mild Nudity"),
+
+    @SerialName("rx")
+    RX("RX - Hentai");
 }

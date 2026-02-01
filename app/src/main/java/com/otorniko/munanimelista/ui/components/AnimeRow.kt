@@ -20,15 +20,13 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.otorniko.munanimelista.data.AnimeNode
 import com.otorniko.munanimelista.data.ListStatus
+import com.otorniko.munanimelista.utils.getDisplayTitles
 
 
 @Composable
 fun AnimeRow(anime: AnimeNode, onClick: () -> Unit) {
-    val displayTitle = if (!anime.alternativeTitles?.en.isNullOrBlank()) {
-        anime.alternativeTitles.en
-    } else {
-        anime.title
-    }
+
+    val displayTitle = anime.getDisplayTitles().first
 
     Row(
         modifier = Modifier
