@@ -28,7 +28,6 @@ interface MalApi {
                     "rating,pictures,background," +
                     "related_anime{alternative_titles,media_type}," +
                     "recommendations{alternative_titles,media_type}," +
-
                     "studios,statistics"
     ): AnimeNode
 

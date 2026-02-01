@@ -69,42 +69,59 @@ fun EditStatusSheet(
             ListStatus.entries.forEach { status ->
                 FilterChip(
                     selected = selectedStatus == status,
-                    onClick = { selectedStatus = status },
+                    onClick = {
+                        selectedStatus = status
+
+                        if (status == ListStatus.Completed && maxEpisodes > 0) {
+                            progress = maxEpisodes
+                        }
+                    },
                     label = { Text(status.label) }
                 )
             }
         }
 
         HorizontalDivider(Modifier.padding(vertical = 16.dp))
-        Text("Score: $score", style = MaterialTheme.typography.labelLarge)
-        Slider(
-            value = score.toFloat(),
-            onValueChange = { score = it.toInt() },
-            valueRange = 0f..10f,
-            steps = 9
-        )
-
-        HorizontalDivider(Modifier.padding(vertical = 16.dp))
-        // todo if episodes == 1 then hide
-        Text(
-            "Progress: $progress / ${if (maxEpisodes > 0) maxEpisodes else "?"}",
-            style = MaterialTheme.typography.labelLarge
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { if (progress > 0) progress-- }) {
-                Text("-", style = MaterialTheme.typography.titleLarge)
+        if (selectedStatus != ListStatus.PlanToWatch) {
+            Text("Score: $score", style = MaterialTheme.typography.labelLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { if (score > 0) score-- }) {
+                    Text("-", style = MaterialTheme.typography.titleLarge)
+                }
+                Slider(
+                    value = score.toFloat(),
+                    onValueChange = { score = it.toInt() },
+                    valueRange = 0f..10f,
+                    steps = 9,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { score++ }) {
+                    Text("+", style = MaterialTheme.typography.titleLarge)
+                }
             }
-            Slider(
-                value = progress.toFloat(),
-                onValueChange = { progress = it.toInt() },
-                valueRange = 0f..(if (maxEpisodes > 0) maxEpisodes.toFloat() else 100f),
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = { progress++ }) {
-                Text("+", style = MaterialTheme.typography.titleLarge)
+
+            HorizontalDivider(Modifier.padding(vertical = 16.dp))
+            if (maxEpisodes != 1) {
+                Text(
+                    "Progress: $progress / ${if (maxEpisodes > 0) maxEpisodes else "?"}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { if (progress > 0) progress-- }) {
+                        Text("-", style = MaterialTheme.typography.titleLarge)
+                    }
+                    Slider(
+                        value = progress.toFloat(),
+                        onValueChange = { progress = it.toInt() },
+                        valueRange = 0f..(if (maxEpisodes > 0) maxEpisodes.toFloat() else 100f),
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { progress++ }) {
+                        Text("+", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
             }
         }
-
         Spacer(Modifier.height(24.dp))
         Button(
             onClick = { onSave(selectedStatus, score, progress) },
@@ -118,7 +135,7 @@ fun EditStatusSheet(
         if (initialStatus != null) {
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedButton( // Use Outlined or Text button for destructive actions
+            OutlinedButton(
                 onClick = onDelete,
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.error

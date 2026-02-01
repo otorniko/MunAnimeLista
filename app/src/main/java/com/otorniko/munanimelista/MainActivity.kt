@@ -1,5 +1,6 @@
 package com.otorniko.munanimelista
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -30,11 +31,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -51,6 +54,7 @@ import com.otorniko.munanimelista.data.MyListTab
 import com.otorniko.munanimelista.data.TokenManager
 import com.otorniko.munanimelista.ui.components.AnimeDetailsScreen
 import com.otorniko.munanimelista.ui.components.AnimeListScreen
+import com.otorniko.munanimelista.ui.components.AppDialog
 import com.otorniko.munanimelista.ui.components.AppDrawerContent
 import com.otorniko.munanimelista.ui.components.BrowseScreen
 import com.otorniko.munanimelista.ui.components.LoginScreen
@@ -68,7 +72,11 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val scope = rememberCoroutineScope()
 
-            // 1. STATE VARIABLES
+            var showUpdateDialog by rememberSaveable { mutableStateOf(false) }
+            var updateUrl by remember { mutableStateOf("") }
+            var showAnnouncementDialog by remember { mutableStateOf(false) }
+            var announcementMessage by remember { mutableStateOf("") }
+
             val tokenManager = remember { TokenManager(context) }
             var clientId by remember { mutableStateOf("") }
             var isError by remember { mutableStateOf(false) }
@@ -82,6 +90,7 @@ class MainActivity : ComponentActivity() {
                 isError = false
                 val remoteConfig = Firebase.remoteConfig
                 val configSettings = remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 }
+                //val configSettings = remoteConfigSettings { minimumFetchIntervalInSeconds = 0 }
                 remoteConfig.setConfigSettingsAsync(configSettings)
 
                 remoteConfig.fetchAndActivate()
@@ -92,6 +101,19 @@ class MainActivity : ComponentActivity() {
                                 clientId = fetched
                             } else {
                                 isError = true
+                            }
+                            val latestVersion = remoteConfig.getLong("latest_version_code")
+                            val currentVersion = BuildConfig.VERSION_CODE.toLong()
+
+                            if (latestVersion > currentVersion) {
+                                updateUrl = remoteConfig.getString("latest_apk_url")
+                                showUpdateDialog = true
+                            }
+
+                            val message = remoteConfig.getString("system_message")
+                            if (message.isNotBlank()) {
+                                announcementMessage = message
+                                showAnnouncementDialog = true
                             }
                         } else {
                             isError = true
@@ -232,6 +254,29 @@ class MainActivity : ComponentActivity() {
                         }
                     } else {
                         LoginScreen(clientId = clientId)
+                    }
+                    if (showUpdateDialog) {
+                        AppDialog(
+                            title = "New Update Available!",
+                            message = "A new version of the app is ready. Download it now to get the latest features.",
+                            confirmText = "Update Now",
+                            dismissText = "Later",
+                            onConfirm = {
+                                val intent = Intent(Intent.ACTION_VIEW, updateUrl.toUri())
+                                context.startActivity(intent)
+                            },
+                            onDismiss = { showUpdateDialog = false }
+                        )
+                    }
+
+                    if (showAnnouncementDialog && !showUpdateDialog) {
+                        AppDialog(
+                            title = "Announcement",
+                            message = announcementMessage,
+                            confirmText = "Got it",
+                            onConfirm = { showAnnouncementDialog = false },
+                            onDismiss = { showAnnouncementDialog = false }
+                        )
                     }
                 }
             } else if (isError) {
