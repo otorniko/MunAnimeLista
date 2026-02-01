@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.foundation.layout)
 
     // --- TESTING ---
     testImplementation(libs.junit)

@@ -9,3 +9,11 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// Your "Logo" Blue (Dark & Professional)
+val BrandDarkBlue = Color(0xFF1565C0)
+
+// Your Background Blue (Very subtle, easy on the eyes)
+val BrandLightBlue = Color(0xFFD7E3F8)
+
+val White = Color(0xFFFFFFFF)
