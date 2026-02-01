@@ -13,8 +13,8 @@ android {
         applicationId = "com.otorniko.munanimelista"
         minSdk = 24
         targetSdk = 35
-        versionCode = 23
-        versionName = "0.3.0-beta"
+        versionCode = 24
+        versionName = "0.3.3-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

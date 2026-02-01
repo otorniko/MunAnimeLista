@@ -49,8 +49,6 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             try {
                 val currentAnime = _animeDetails.value ?: return@launch
-
-                // 1. Call API
                 val newStatus = api.updateMyListStatus(
                     id = currentAnime.id,
                     status = status.serialName,
@@ -70,16 +68,13 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
     fun removeAnime(animeId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                // 1. Delete from Server
                 api.deleteMyListStatus(animeId)
 
-                // 2. Update THIS screen's state (so the "Add" button reappears immediately)
                 val current = _animeDetails.value
                 if (current != null) {
                     _animeDetails.value = current.copy(myListStatus = null)
                 }
 
-                // 3. Tell the UI we are done
                 onSuccess()
 
             } catch (e: Exception) {

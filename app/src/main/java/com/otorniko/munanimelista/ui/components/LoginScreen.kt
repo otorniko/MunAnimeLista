@@ -22,8 +22,6 @@ import java.security.SecureRandom
 @Composable
 fun LoginScreen(clientId: String) {
     val context = LocalContext.current
-    //todo
-    //val clientId = "92fe9349158bff3e955b7a6ef57f2789"
 
     fun generateVerifier(): String {
         val secureRandom = SecureRandom()

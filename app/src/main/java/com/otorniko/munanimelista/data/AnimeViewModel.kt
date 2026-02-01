@@ -40,7 +40,7 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
     private var currentBrowseOffset = 0
     private var currentRankingType: String = "all"
     var isBrowseLoading by mutableStateOf(false)
-    var currentSortType by mutableStateOf(SortType.LAST_UPDATED) // Default
+    var currentSortType by mutableStateOf(SortType.LAST_UPDATED)
     var isSortAscending by mutableStateOf(false)
     private val retrofit by lazy {
         val client = OkHttpClient.Builder()
@@ -68,7 +68,6 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
-                // Reuse your existing API instance!
                 val response = api.getTopAnime(
                     type = currentRankingType,
                     offset = currentBrowseOffset,

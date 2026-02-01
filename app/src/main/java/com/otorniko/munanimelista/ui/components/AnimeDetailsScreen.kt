@@ -22,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
@@ -59,7 +58,6 @@ import com.otorniko.munanimelista.data.AnimeDetailsViewModel
 import com.otorniko.munanimelista.data.MediaType
 import com.otorniko.munanimelista.utils.getDisplayTitles
 import com.otorniko.munanimelista.utils.getSeasonString
-import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,7 +139,7 @@ fun AnimeDetailsScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxHeight()
-                            .aspectRatio(0.7f) // Standard poster ratio
+                            .aspectRatio(0.7f)
                             .clip(MaterialTheme.shapes.medium),
                         contentScale = ContentScale.Crop
                     )
@@ -149,14 +147,28 @@ fun AnimeDetailsScreen(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            Text(
+                                text = "Score: ${anime.mean ?: "N/A"}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 14.dp)
 
-                        Text(
-                            text = "Score: ${anime.mean ?: "N/A"}",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                            )
+                            SuggestionChip(onClick = {}, label = {
+                                val type = anime.mediaType?.name?.uppercase() ?: "TV"
+                                val eps = anime.numEpisodes
+                                val showCount = type != "MOVIE" && eps != 1
 
+                                Text(
+                                    text = if (showCount) "$type • ${eps ?: "?"} eps" else type
+                                )
+                            })
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
                         val rankText = "Rank: #${anime.rank ?: "N/A"}"
@@ -183,72 +195,67 @@ fun AnimeDetailsScreen(
                                 startStr == endStr -> startStr
                                 else -> "$startStr - $endStr"
                             }
-                            Text(text = displayText)
+                            Text(
+                                text = displayText,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                maxLines = 2,
+                                minLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
-                        ) {
-                            SuggestionChip(onClick = {}, label = {
-                                val type = anime.mediaType?.name?.uppercase() ?: "TV"
-                                val eps = anime.numEpisodes
-                                val showCount = type != "MOVIE" && eps != 1
-
-                                Text(
-                                    text = if (showCount) "$type • ${eps ?: "?"} eps" else type
-                                )
-                            })
-
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround // Spreads them evenly
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.Top
                         ) {
                             // Studio
                             val studioName = anime.studios?.firstOrNull()?.name ?: "Unknown"
                             AnimeInfoItem(
-                                icon = Icons.Default.Business, label = "Studio", value = studioName
+                                icon = Icons.Default.Business,
+                                label = "Studio",
+                                value = studioName,
+                                modifier = Modifier.weight(1f)
                             )
 
                             // Source
-                            val sourceName = anime.source?.replace("_", " ")
-                                ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-                                ?: "-"
-                            AnimeInfoItem(
-                                icon = Icons.AutoMirrored.Filled.MenuBook,
-                                label = "Source",
-                                value = sourceName
-                            )
-
+//                            val sourceName = anime.source?.replace("_", " ")
+//                                ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+//                                ?: "-"
+//                            AnimeInfoItem(
+//                                icon = Icons.AutoMirrored.Filled.MenuBook,
+//                                label = "Source",
+//                                value = sourceName,
+//                                modifier = Modifier.weight(1f)
+//                            )
+                            // Rating
                             val ratingName = anime.rating?.label?.split(" -")?.get(0) ?: "-"
                             AnimeInfoItem(
                                 icon = Icons.Default.Warning, // Or Icons.Default.Explicit
-                                label = "Rating", value = ratingName
+                                label = "Rating", value = ratingName,
+                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                // 1. GENRES (The "Tags" look)
                 if (!anime.genres.isNullOrEmpty()) {
-
-                    // The Scrollable Row
                     LazyRow(
-                        contentPadding = PaddingValues(horizontal = 8.dp), // Adds padding to the start/end of the list
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)  // Spacing between chips
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(anime.genres) { genre ->
                             SuggestionChip(
                                 onClick = { /* Todo: Navigate */ },
                                 label = { Text(genre.name) },
-                                // Optional: Make them look slightly smaller/sleeker
                                 colors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
                                         alpha = 0.5f
                                     )
                                 ),
-                                border = null // Removes the outline for a cleaner look
+                                border = null
                             )
                         }
                     }
@@ -422,14 +429,17 @@ fun ExpandableText(
 
 @Composable
 fun AnimeInfoItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             imageVector = icon,
             contentDescription = label,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
