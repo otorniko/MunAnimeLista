@@ -27,31 +27,34 @@ fun SortChip(
         selected = isSelected,
         onClick = onClick,
         label = { Text(label) },
-        leadingIcon = if (isSelected) {
+        leadingIcon =
+            if (isSelected) {
             {
                 Icon(
-                    imageVector = if (isAscending) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    imageVector =
+                        if (isAscending) Icons.Default.ArrowUpward
+                        else Icons.Default.ArrowDownward,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
             }
         } else null,
-        // 1. Remove border when selected
         border = FilterChipDefaults.filterChipBorder(
             enabled = true,
             selected = isSelected,
-            borderColor = if (isSelected) Transparent else MaterialTheme.colorScheme.outlineVariant,
+            borderColor =
+                if (isSelected) Transparent
+                else MaterialTheme.colorScheme.outlineVariant,
             borderWidth = 1.dp
         ),
 
-        // 2. Add a soft background fill when selected
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = BrandDarkBlue.copy(alpha = 0.1f),
-            selectedLabelColor = BrandDarkBlue, // Dark blue text
+            selectedLabelColor = BrandDarkBlue,
             selectedLeadingIconColor = BrandDarkBlue,
             containerColor = BrandDarkBlue.copy(alpha = 0.1f),
             labelColor = BrandDarkBlue
-            //labelColor = BrandDarkBlue
+
         ),
         shape = CircleShape
     )

@@ -47,7 +47,6 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchState = MutableStateFlow(TextFieldValue(""))
     val searchState = _searchState.asStateFlow()
 
-    // 2. Keep the visibility state here too (Optional, but recommended)
     private val _isSearchBarVisible = MutableStateFlow(false)
     val isSearchBarVisible = _isSearchBarVisible.asStateFlow()
 

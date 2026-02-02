@@ -1,9 +1,9 @@
 package com.otorniko.munanimelista.ui.components
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -28,6 +30,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +58,16 @@ fun EditStatusSheet(
     var score by remember { mutableIntStateOf(initialScore) }
     var progress by remember { mutableIntStateOf(initialProgress) }
 
+    val listState = rememberLazyListState()
+    val allStatuses = ListStatus.entries
+
+    LaunchedEffect(Unit) {
+        val index = allStatuses.indexOf(initialStatus)
+        if (index >= 0) {
+            listState.scrollToItem(index)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,13 +77,12 @@ fun EditStatusSheet(
         Text("Update Status", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
         Text("Status", style = MaterialTheme.typography.labelLarge)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
+        LazyRow(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ListStatus.entries.forEach { status ->
+            items(ListStatus.entries) { status ->
                 FilterChip(
                     selected = selectedStatus == status,
                     onClick = {
@@ -82,12 +94,11 @@ fun EditStatusSheet(
                     },
                     label = { Text(status.label) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BrandDarkBlue.copy(alpha = 0.1f),
-                        selectedLabelColor = BrandDarkBlue, // Dark blue text
-                        selectedLeadingIconColor = BrandDarkBlue,
-                        containerColor = BrandDarkBlue.copy(alpha = 0.1f),
-                        labelColor = BrandDarkBlue
-                        //labelColor = BrandDarkBlue
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
@@ -170,7 +181,8 @@ fun EditStatusSheet(
             OutlinedButton(
                 onClick = onDelete,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
