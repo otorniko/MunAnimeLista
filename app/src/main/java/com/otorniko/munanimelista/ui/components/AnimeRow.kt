@@ -13,22 +13,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.otorniko.munanimelista.data.AnimeNode
+import com.otorniko.munanimelista.data.AnimeViewModel
 import com.otorniko.munanimelista.data.ListStatus
 import com.otorniko.munanimelista.utils.getDisplayTitles
 
 
 @Composable
-fun AnimeRow(anime: AnimeNode, onClick: () -> Unit) {
+fun AnimeRow(anime: AnimeNode, onClick: () -> Unit, viewModel: AnimeViewModel = viewModel()) {
 
-    val (title, subtitle) = remember(anime) { anime.getDisplayTitles() }
+    val preferEnglish by viewModel.preferEnglish.collectAsState()
+
+    val (title, subtitle) = remember(anime, preferEnglish) {
+        anime?.getDisplayTitles(preferEnglish) ?: ("" to null)
+    }
 
     Row(
         modifier = Modifier
@@ -87,7 +95,7 @@ fun AnimeRow(anime: AnimeNode, onClick: () -> Unit) {
                 }
 
                 Text(
-                    text = status.label, // Uses your Enum's .label (e.g. "Plan to Watch")
+                    text = status.label,
                     style = MaterialTheme.typography.labelMedium,
                     color = statusColor,
                     fontWeight = FontWeight.Bold

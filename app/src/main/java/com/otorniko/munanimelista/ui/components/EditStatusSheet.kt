@@ -18,12 +18,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.otorniko.munanimelista.data.ListStatus
+import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
+import com.otorniko.munanimelista.ui.theme.Transparent
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -55,7 +59,7 @@ fun EditStatusSheet(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp)
-            .padding(bottom = 32.dp)
+            .padding(bottom = 32.dp),
     ) {
         Text("Update Status", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
@@ -76,7 +80,21 @@ fun EditStatusSheet(
                             progress = maxEpisodes
                         }
                     },
-                    label = { Text(status.label) }
+                    label = { Text(status.label) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = BrandDarkBlue.copy(alpha = 0.1f),
+                        selectedLabelColor = BrandDarkBlue, // Dark blue text
+                        selectedLeadingIconColor = BrandDarkBlue,
+                        containerColor = BrandDarkBlue.copy(alpha = 0.1f),
+                        labelColor = BrandDarkBlue
+                        //labelColor = BrandDarkBlue
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = selectedStatus == status,
+                        borderColor = if (selectedStatus == status) Transparent else MaterialTheme.colorScheme.outlineVariant,
+                        borderWidth = 1.dp
+                    ),
                 )
             }
         }
@@ -93,7 +111,13 @@ fun EditStatusSheet(
                     onValueChange = { score = it.toInt() },
                     valueRange = 0f..10f,
                     steps = 9,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = (SliderDefaults.colors(
+                        activeTrackColor = BrandDarkBlue,
+                        inactiveTickColor = BrandDarkBlue,
+                        inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
+                        thumbColor = BrandDarkBlue
+                    ))
                 )
                 IconButton(onClick = { score++ }) {
                     Text("+", style = MaterialTheme.typography.titleLarge)
@@ -114,7 +138,12 @@ fun EditStatusSheet(
                         value = progress.toFloat(),
                         onValueChange = { progress = it.toInt() },
                         valueRange = 0f..(if (maxEpisodes > 0) maxEpisodes.toFloat() else 100f),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = (SliderDefaults.colors(
+                            activeTrackColor = BrandDarkBlue,
+                            inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
+                            thumbColor = BrandDarkBlue
+                        ))
                     )
                     IconButton(onClick = { progress++ }) {
                         Text("+", style = MaterialTheme.typography.titleLarge)
@@ -125,7 +154,10 @@ fun EditStatusSheet(
         Spacer(Modifier.height(24.dp))
         Button(
             onClick = { onSave(selectedStatus, score, progress) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BrandDarkBlue
+            )
         ) {
             Text("Save Changes")
         }

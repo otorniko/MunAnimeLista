@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,17 +36,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.otorniko.munanimelista.data.MyListTab
 import com.otorniko.munanimelista.data.RankingCategory
+import com.otorniko.munanimelista.ui.theme.BrandLightBlue
 
 @Composable
 fun AppDrawerContent(
     onCategoryClick: (RankingCategory) -> Unit,
-    onMyListClick: (MyListTab) -> Unit
+    onMyListClick: (MyListTab) -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
     var isMyListExpanded by remember { mutableStateOf(false) }
     var isBrowseExpanded by remember { mutableStateOf(false) }
 
-    ModalDrawerSheet {
+    ModalDrawerSheet(drawerContainerColor = BrandLightBlue,) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
         Text(
             text = "Mun Anime Lista",
             modifier = Modifier.padding(16.dp),
@@ -101,8 +110,7 @@ fun AppDrawerContent(
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
                 .fillMaxWidth()
                 .height(56.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-            ,
+                .clip(MaterialTheme.shapes.extraSmall),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -169,5 +177,16 @@ fun AppDrawerContent(
             },
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+        NavigationDrawerItem(
+            label = { Text("Settings") },
+            selected = false,
+            onClick = onSettingsClick,
+            icon = { Icon(Icons.Default.Settings, null) },
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+    }
     }
 }
