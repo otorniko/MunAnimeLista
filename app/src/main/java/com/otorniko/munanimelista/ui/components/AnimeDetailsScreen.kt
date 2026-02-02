@@ -51,9 +51,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,8 +61,6 @@ import coil.compose.AsyncImage
 import com.otorniko.munanimelista.data.AnimeDetailsViewModel
 import com.otorniko.munanimelista.data.MediaType
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
-import com.otorniko.munanimelista.ui.theme.BrandLightBlue
-import com.otorniko.munanimelista.ui.theme.White
 import com.otorniko.munanimelista.utils.getDisplayTitles
 import com.otorniko.munanimelista.utils.getSeasonString
 import java.util.Locale
@@ -91,14 +89,13 @@ fun AnimeDetailsScreen(
     }
 
     Scaffold(
-        containerColor = BrandLightBlue,
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = BrandDarkBlue,
-                    titleContentColor = White,
-                    navigationIconContentColor = White,
-                    actionIconContentColor = White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 title = {
                     Box(modifier = Modifier.clickable {}) {
@@ -119,8 +116,10 @@ fun AnimeDetailsScreen(
             if (anime != null) {
                 ExtendedFloatingActionButton(text = {
                     Text(if (anime.myListStatus == null) "Add to List" else "Edit Status")
-                }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true }, containerColor = BrandDarkBlue,
-                    contentColor = White)
+                }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 
@@ -129,7 +128,6 @@ fun AnimeDetailsScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            color = BrandLightBlue
         ) {
             if (animeState == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -151,15 +149,13 @@ fun AnimeDetailsScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .fillMaxWidth(),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
                             text = title,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
                         )
                     }
 
@@ -167,12 +163,11 @@ fun AnimeDetailsScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .padding(vertical = 8.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             Text(
                                 text = subtitle,
-                                textAlign = TextAlign.Center
                             )
                         }
                     }
@@ -196,7 +191,6 @@ fun AnimeDetailsScreen(
                             Text(
                                 text = "$score  •  $myScore",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -205,7 +199,6 @@ fun AnimeDetailsScreen(
                             Text(
                                 text = "$rankText  •  $popText",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             SuggestionChip(
                                 onClick = {},
@@ -219,7 +212,7 @@ fun AnimeDetailsScreen(
                                     )
                                 },
                                 colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = BrandDarkBlue
+                                    containerColor = MaterialTheme.colorScheme.primary
                                         .copy(alpha = 0.1f),
                                     labelColor = BrandDarkBlue
                                 ),
@@ -297,9 +290,8 @@ fun AnimeDetailsScreen(
                                     onClick = { /* Todo: Navigate */ },
                                     label = { Text(genre.name) },
                                     colors = SuggestionChipDefaults.suggestionChipColors(
-                                        containerColor = BrandDarkBlue
-                                            .copy(alpha = 0.1f),
-                                        labelColor = BrandDarkBlue
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     ),
                                     border = null
                                 )
@@ -412,7 +404,7 @@ fun AnimeDetailsScreen(
                         ModalBottomSheet(
                             onDismissRequest = { showSheet = false },
                             sheetState = sheetState,
-                            containerColor = BrandLightBlue
+                            containerColor = MaterialTheme.colorScheme.surface
                         ) {
                             EditStatusSheet(
                                 initialStatus = anime.myListStatus?.status,
@@ -465,13 +457,11 @@ fun ExpandableText(
         if (isOverflowing && !isExpanded) {
             Text(
                 text = "Read more...",
-                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge
             )
         } else if (isExpanded) {
             Text(
                 text = "Show less",
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -480,7 +470,7 @@ fun ExpandableText(
 
 @Composable
 fun AnimeInfoItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -489,14 +479,15 @@ fun AnimeInfoItem(
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = MaterialTheme.colorScheme.primary,
+            //en osaa päättää...
+           // tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+          //  color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,

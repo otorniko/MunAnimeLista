@@ -170,7 +170,7 @@ class MainActivity : ComponentActivity() {
                 MunAnimeListaTheme {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        //color = MaterialTheme.colorScheme.background
+                       color = MaterialTheme.colorScheme.background
                     ) {
                     if (isLoggedIn) {
                         val navController = rememberNavController()

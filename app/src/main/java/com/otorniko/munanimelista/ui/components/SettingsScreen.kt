@@ -27,8 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.otorniko.munanimelista.data.SettingsRepository
-import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
-import com.otorniko.munanimelista.ui.theme.BrandLightBlue
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,13 +41,13 @@ fun SettingsScreen(
     val preferEnglish by repository.preferEnglishTitles.collectAsState(initial = true)
 
     Scaffold(
-        containerColor = BrandLightBlue,
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = BrandDarkBlue,
-                    titleContentColor = androidx.compose.ui.graphics.Color.White,
-                    navigationIconContentColor = androidx.compose.ui.graphics.Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 title = { Text("Settings") },
                 navigationIcon = {
@@ -80,7 +78,6 @@ fun SettingsScreen(
                         text = if (preferEnglish) "Using English titles (Attack on Titan)"
                         else "Using Japanese titles (Shingeki no Kyojin)",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 

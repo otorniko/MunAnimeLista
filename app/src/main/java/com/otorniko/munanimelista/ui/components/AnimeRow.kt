@@ -79,14 +79,12 @@ fun AnimeRow(anime: AnimeNode, onClick: () -> Unit, viewModel: AnimeViewModel = 
             Text(
                 text = "Score: ${anime.mean} | Me: ${anime.myListStatus?.score ?: "-"}",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             val status = anime.myListStatus?.status
             if (status != null) {
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Dynamic color based on status
                 val statusColor = when (status) {
                     ListStatus.Watching -> MaterialTheme.colorScheme.primary
                     ListStatus.Completed -> MaterialTheme.colorScheme.secondary
