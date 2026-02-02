@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +59,8 @@ import com.otorniko.munanimelista.ui.components.AppDialog
 import com.otorniko.munanimelista.ui.components.AppDrawerContent
 import com.otorniko.munanimelista.ui.components.BrowseScreen
 import com.otorniko.munanimelista.ui.components.LoginScreen
+import com.otorniko.munanimelista.ui.components.Screen
+import com.otorniko.munanimelista.ui.components.SettingsScreen
 import com.otorniko.munanimelista.ui.theme.MunAnimeListaTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -165,6 +168,10 @@ class MainActivity : ComponentActivity() {
             }
             if (clientId.isNotEmpty()) {
                 MunAnimeListaTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        //color = MaterialTheme.colorScheme.background
+                    ) {
                     if (isLoggedIn) {
                         val navController = rememberNavController()
                         val viewModel: AnimeViewModel = viewModel()
@@ -176,23 +183,34 @@ class MainActivity : ComponentActivity() {
                                 AppDrawerContent(
                                     onMyListClick = { tab ->
                                         scope.launch { drawerState.close() }
-                                        navController.navigate("list?status=${tab.name}") {
-                                            popUpTo("list?status=ALL") { inclusive = false }
+                                        navController.navigate(Screen.AnimeList.createRoute(tab.name)) {
+                                            popUpTo(Screen.AnimeList.route) { inclusive = false }
                                             launchSingleTop = true
                                         }
                                     },
                                     onCategoryClick = { category ->
                                         scope.launch { drawerState.close() }
-                                        navController.navigate("browse/${category.apiKey}/${category.label}") {
+                                        navController.navigate(Screen.Browse.createRoute(category)) {
+                                            popUpTo(Screen.Browse.route) {
+                                                saveState = true //Todo en oo varma pitää testaa
+                                            }
+                                            launchSingleTop = true
+                                            restoreState  = true // tää kans
+                                        }
+                                    },
+                                    onSettingsClick = {
+                                        scope.launch { drawerState.close() }
+                                        navController.navigate(Screen.Settings.route) {
                                             launchSingleTop = true
                                         }
                                     }
                                 )
                             }
                         ) {
-                            NavHost(navController = navController, startDestination = "list") {
+                            NavHost(navController = navController, startDestination = Screen.AnimeList.route) {
+                                // My List
                                 composable(
-                                    route = "list?status={status}",
+                                    route = Screen.AnimeList.route,
                                     arguments = listOf(navArgument("status") {
                                         defaultValue = "ALL"
                                         type = NavType.StringType
@@ -208,12 +226,13 @@ class MainActivity : ComponentActivity() {
                                     AnimeListScreen(
                                         viewModel = viewModel,
                                         initialTab = tab,
-                                        onAnimeClick = { id -> navController.navigate("details/$id") },
+                                        onAnimeClick = { id -> navController.navigate(Screen.AnimeDetails.createRoute(id)) },
                                         onOpenDrawer = { scope.launch { drawerState.open() } }
                                     )
                                 }
+                                // Details
                                 composable(
-                                    route = "details/{animeId}",
+                                    route = Screen.AnimeDetails.route,
                                     arguments = listOf(navArgument("animeId") {
                                         type = NavType.IntType
                                     })
@@ -222,14 +241,15 @@ class MainActivity : ComponentActivity() {
                                     AnimeDetailsScreen(
                                         animeId = id,
                                         onBackClick = { navController.popBackStack() },
-                                        onAnimeClick = { newId -> navController.navigate("details/$newId") },
+                                        onAnimeClick = { newId -> navController.navigate(Screen.AnimeDetails.createRoute(id)) },
                                         onStatusChanged = {
                                             viewModel.refresh()
                                         }
                                     )
                                 }
+                                // Top List
                                 composable(
-                                    route = "browse/{categoryType}/{categoryTitle}",
+                                    route = Screen.Browse.route,
                                     arguments = listOf(
                                         navArgument("categoryType") { type = NavType.StringType },
                                         navArgument("categoryTitle") { type = NavType.StringType }
@@ -247,7 +267,14 @@ class MainActivity : ComponentActivity() {
                                         title = title,
                                         viewModel = viewModel,
                                         onOpenDrawer = { scope.launch { drawerState.open() } },
-                                        onAnimeClick = { id -> navController.navigate("details/$id") }
+                                        onAnimeClick = { id -> navController.navigate(Screen.AnimeDetails.createRoute(id)) }
+                                    )
+                                }
+                                // Settings
+                                composable(route = Screen.Settings.route)
+                                {
+                                    SettingsScreen(
+                                        onBackClick = { navController.popBackStack() }
                                     )
                                 }
                             }
@@ -278,7 +305,7 @@ class MainActivity : ComponentActivity() {
                             onDismiss = { showAnnouncementDialog = false }
                         )
                     }
-                }
+                }}
             } else if (isError) {
                 Scaffold { padding ->
                     Column(

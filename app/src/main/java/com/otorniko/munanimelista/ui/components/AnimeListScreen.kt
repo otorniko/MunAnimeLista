@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
@@ -23,6 +24,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -33,11 +35,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,11 +63,22 @@ fun AnimeListScreen(
     onOpenDrawer: () -> Unit
 ) {
     val animeList by viewModel.visibleList.collectAsState()
-    var isSearching by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
+    //var isSearchOpen by remember { mutableStateOf(false) }
+    //var query by remember { mutableStateOf("") }
+    //val searchState by viewModel.searchQuery.collectAsState()
+    val searchState by viewModel.searchState.collectAsState()
+    val isSearchOpen by viewModel.isSearchBarVisible.collectAsState()
 
     val tabs = listOf("All") + ListStatus.entries.map { it.label }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(isSearchOpen) {
+        if (isSearchOpen) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
     LaunchedEffect(initialTab) {
         viewModel.filterByStatus(initialTab.status)
     }
@@ -78,19 +93,25 @@ fun AnimeListScreen(
                     actionIconContentColor = White
                 ),
                 title = {
-                    if (isSearching) {
+                    if (isSearchOpen) {
                         TextField(
-                            value = searchText,
-                            onValueChange = { /* ... */ },
+                            value = searchState,
+                            onValueChange = {
+                                    newTextFieldValue ->
+                                viewModel.onSearchStateChange(newTextFieldValue)
+                                viewModel.search(newTextFieldValue.text)
+                            },
                             placeholder = { Text("Search...") },
                             singleLine = true,
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
+                                focusedContainerColor = White,
+                                unfocusedContainerColor = White,
+                                focusedIndicatorColor = White,
+                                unfocusedIndicatorColor = White
                             ),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .fillMaxWidth(),
                             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                         )
                     } else {
@@ -107,16 +128,15 @@ fun AnimeListScreen(
                     }
                 },
                 actions = {
-                    if (isSearching) {
+                    if (isSearchOpen) {
                         IconButton(onClick = {
-                            isSearching = false
-                            searchText = ""
                             viewModel.clearSearch()
+                            viewModel.toggleSearchBar(false)
                         }) {
                             Icon(Icons.Default.Close, contentDescription = "Close Search")
                         }
                     } else {
-                        IconButton(onClick = { isSearching = true }) {
+                        IconButton(onClick = { viewModel.toggleSearchBar(true) }) {
                             Icon(Icons.Default.Search, contentDescription = "Search")
                         }
                     }
@@ -144,17 +164,32 @@ fun AnimeListScreen(
                             val newFilter = if (index == 0) null else ListStatus.entries[index - 1]
                             viewModel.filterByStatus(newFilter)
                         },
-                        text = { Text(title) },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onPrimary
+                        text = {
+                            Surface(
+                                shape = CircleShape,
+                                color = if (selectedTabIndex == index) Color.White else Color.Transparent,
+                                contentColor = if (selectedTabIndex == index) BrandDarkBlue else Color.White
+                            ) {
+                                Text(
+                                    text = title,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     )
                 }
             }
         }
     ) { innerPadding ->
-        Column(
+        Surface(
             modifier = Modifier
                 .padding(innerPadding)
+                .fillMaxSize(),
+            color = BrandLightBlue
+        ) {
+        Column(
+            modifier = Modifier
                 .fillMaxSize()
         ) {
             Row(
@@ -193,9 +228,12 @@ fun AnimeListScreen(
                         anime = anime,
                         onClick = {
                             onAnimeClick(anime.id)
-                        })
+                        },
+                        viewModel = viewModel
+                    )
                 }
             }
         }
+    }
     }
 }

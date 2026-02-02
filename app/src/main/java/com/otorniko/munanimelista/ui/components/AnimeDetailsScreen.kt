@@ -37,6 +37,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -82,7 +83,12 @@ fun AnimeDetailsScreen(
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val anime = animeState
-    val (title, subtitle) = remember(anime) { anime.getDisplayTitles() }
+
+    val preferEnglish by viewModel.preferEnglish.collectAsState()
+
+    val (title, subtitle) = remember(anime, preferEnglish) {
+        anime?.getDisplayTitles(preferEnglish) ?: ("" to null)
+    }
 
     Scaffold(
         containerColor = BrandLightBlue,
@@ -119,7 +125,7 @@ fun AnimeDetailsScreen(
         }
 
     ) { innerPadding ->
-        androidx.compose.material3.Surface(
+        Surface(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
@@ -140,7 +146,6 @@ fun AnimeDetailsScreen(
 
                 Column(
                     modifier = Modifier
-                        //.padding(innerPadding)
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
@@ -202,20 +207,22 @@ fun AnimeDetailsScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            SuggestionChip(onClick = {}, label = {
-                                val type = anime.mediaType?.name?.uppercase() ?: "TV"
-                                val eps = anime.numEpisodes
-                                val showCount = type != "MOVIE" && eps != 1
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    val type = anime.mediaType?.name?.uppercase() ?: "TV"
+                                    val eps = anime.numEpisodes
+                                    val showCount = type != "MOVIE" && eps != 1
 
-                                Text(
-                                    text = if (showCount) "$type • ${eps ?: "?"} eps" else type
-                                )
-                            },colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = BrandDarkBlue
-                                    .copy(alpha = 0.1f),
-                                labelColor = BrandDarkBlue
-                            ),
-                                //border = null
+                                    Text(
+                                        text = if (showCount) "$type • ${eps ?: "?"} eps" else type
+                                    )
+                                },
+                                colors = SuggestionChipDefaults.suggestionChipColors(
+                                    containerColor = BrandDarkBlue
+                                        .copy(alpha = 0.1f),
+                                    labelColor = BrandDarkBlue
+                                ),
                                 )
                             Spacer(modifier = Modifier.height(8.dp))
                             var displayText = "Unaired"
@@ -403,7 +410,9 @@ fun AnimeDetailsScreen(
                     }
                     if (showSheet && anime != null) {
                         ModalBottomSheet(
-                            onDismissRequest = { showSheet = false }, sheetState = sheetState
+                            onDismissRequest = { showSheet = false },
+                            sheetState = sheetState,
+                            containerColor = BrandLightBlue
                         ) {
                             EditStatusSheet(
                                 initialStatus = anime.myListStatus?.status,

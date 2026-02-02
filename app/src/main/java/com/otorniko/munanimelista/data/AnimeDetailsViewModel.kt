@@ -6,7 +6,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,6 +20,15 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
     private val json = Json { ignoreUnknownKeys = true }
     private val _animeDetails = MutableStateFlow<AnimeNode?>(null)
     val animeDetails = _animeDetails.asStateFlow()
+
+    private val settingsRepo = SettingsRepository(application)
+
+    val preferEnglish = settingsRepo.preferEnglishTitles
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
 
     private val retrofit by lazy {

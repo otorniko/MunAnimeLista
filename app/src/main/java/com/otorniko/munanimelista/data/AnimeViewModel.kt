@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -42,6 +43,14 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
     var isBrowseLoading by mutableStateOf(false)
     var currentSortType by mutableStateOf(SortType.LAST_UPDATED)
     var isSortAscending by mutableStateOf(false)
+
+    private val _searchState = MutableStateFlow(TextFieldValue(""))
+    val searchState = _searchState.asStateFlow()
+
+    // 2. Keep the visibility state here too (Optional, but recommended)
+    private val _isSearchBarVisible = MutableStateFlow(false)
+    val isSearchBarVisible = _isSearchBarVisible.asStateFlow()
+
     private val retrofit by lazy {
         val client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenManager))
@@ -125,8 +134,28 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun onSearchStateChange(newValue: TextFieldValue) {
+        _searchState.value = newValue
+
+        //        _searchState.value = newValue.copy(
+//            selection = TextRange(newValue.text.length) // Always force cursor to end
+//        )
+
+        val queryText = newValue.text
+        search(queryText)
+    }
+
     fun clearSearch() {
-        _searchResults.value = null
+        _searchState.value = TextFieldValue("")
+        search("")
+    }
+
+    fun toggleSearchBar(isOpen: Boolean) {
+        _isSearchBarVisible.value = isOpen
+        if (!isOpen) {
+            // Optional: Clear text when closing explicitly
+            // _searchQuery.value = ""
+        }
     }
 
     fun filterByStatus(status: ListStatus?) {
@@ -174,6 +203,15 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
         }
         processList()
     }
+
+    private val settingsRepo = SettingsRepository(application)
+
+    val preferEnglish = settingsRepo.preferEnglishTitles
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
 }
 

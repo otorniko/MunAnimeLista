@@ -2,7 +2,6 @@ package com.otorniko.munanimelista.utils
 
 import com.otorniko.munanimelista.data.AnimeNode
 
-// CHANGED: "AnimeNode?" (nullable) instead of "AnimeNode"
 fun AnimeNode?.getDisplayTitles(preferEnglish: Boolean = true): Pair<String, String?> {
     if (this == null) return "" to null
 

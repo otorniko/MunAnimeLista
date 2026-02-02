@@ -13,8 +13,8 @@ android {
         applicationId = "com.otorniko.munanimelista"
         minSdk = 24
         targetSdk = 35
-        versionCode = 24
-        versionName = "0.3.3-beta"
+        versionCode = 25
+        versionName = "0.3.5-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.datastore.preferences)
 
     // --- TESTING ---
     testImplementation(libs.junit)
