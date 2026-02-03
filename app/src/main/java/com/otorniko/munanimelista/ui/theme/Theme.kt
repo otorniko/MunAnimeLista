@@ -39,16 +39,16 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = White,
 
     // 2. The Canvas (The App Background)
-    background = BrandLightBlue,
+    background = White,
     onBackground = Color.Black,
 
     // 3. Cards & Sheets
-    surface = Color.White,
+    surface = White,
     onSurface = Color.Black,
 
     // 4. Drawer / BottomSheet specific
     surfaceContainer = BrandLightBlue,
-    onSurfaceVariant = BrandDarkBlue, // Icons/Subtext color
+    onSurfaceVariant = LightGrey, // Icons/Subtext color
     surfaceContainerLow = BrandLightBlue,
 
     // 5. Container? (Chips)

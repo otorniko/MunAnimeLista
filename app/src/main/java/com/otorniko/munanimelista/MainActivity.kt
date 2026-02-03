@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.Log.e
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -67,6 +68,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.Map.entry
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,7 +185,7 @@ class MainActivity : ComponentActivity() {
                                 AppDrawerContent(
                                     onMyListClick = { tab ->
                                         scope.launch { drawerState.close() }
-                                        navController.navigate(Screen.AnimeList.createRoute(tab.name)) {
+                                        navController.navigate(Screen.AnimeList.createRoute(tab)) {
                                             popUpTo(Screen.AnimeList.route) { inclusive = false }
                                             launchSingleTop = true
                                         }
@@ -223,28 +225,41 @@ class MainActivity : ComponentActivity() {
                                         MyListTab.ALL
                                     }
 
+
                                     AnimeListScreen(
                                         viewModel = viewModel,
                                         initialTab = tab,
-                                        onAnimeClick = { id -> navController.navigate(Screen.AnimeDetails.createRoute(id)) },
+                                        onAnimeClick = {
+                                            id -> navController.navigate(Screen.AnimeDetails.createRoute(id, Screen.AnimeList.route)) },
                                         onOpenDrawer = { scope.launch { drawerState.open() } }
                                     )
                                 }
                                 // Details
                                 composable(
                                     route = Screen.AnimeDetails.route,
-                                    arguments = listOf(navArgument("animeId") {
-                                        type = NavType.IntType
-                                    })
+                                    arguments = listOf(
+                                        navArgument("id") { type = NavType.IntType },
+                                        navArgument("origin") { type = NavType.StringType; defaultValue = Screen.AnimeList.route }
+                                    )
                                 ) { backStackEntry ->
-                                    val id = backStackEntry.arguments?.getInt("animeId") ?: 0
+                                    val id = backStackEntry.arguments?.getInt("id") ?: 0
+                                    val origin = backStackEntry.arguments?.getString("origin") ?: Screen.AnimeList.route
                                     AnimeDetailsScreen(
                                         animeId = id,
                                         onBackClick = { navController.popBackStack() },
-                                        onAnimeClick = { newId -> navController.navigate(Screen.AnimeDetails.createRoute(id)) },
+                                        onAnimeClick = { newId ->
+                                            navController
+                                                .navigate(
+                                                    Screen
+                                                        .AnimeDetails
+                                                        .createRoute(newId, origin)) },
                                         onStatusChanged = {
                                             viewModel.refresh()
-                                        }
+                                        },
+                                        onBackToListClick = {
+                                            navController.popBackStack(route = origin, inclusive = false)
+                                        },
+                                        originRoute = origin
                                     )
                                 }
                                 // Top List
@@ -267,7 +282,8 @@ class MainActivity : ComponentActivity() {
                                         title = title,
                                         viewModel = viewModel,
                                         onOpenDrawer = { scope.launch { drawerState.open() } },
-                                        onAnimeClick = { id -> navController.navigate(Screen.AnimeDetails.createRoute(id)) }
+                                        onAnimeClick = { id ->
+                                            navController.navigate(Screen.AnimeDetails.createRoute(id, Screen.Browse.route)) }
                                     )
                                 }
                                 // Settings

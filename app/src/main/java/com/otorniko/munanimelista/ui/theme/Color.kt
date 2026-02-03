@@ -19,5 +19,10 @@ val BrandLightBlue = Color(0xFFE6E8EF)
 //val BrandLightBlue = Color(0xFFD6E2EA) // blue grey
 
 
+val LightGrey = Color(0xFFC0C0C0)
+
+
+
+
 val White = Color(0xFFFFFFFF)
 val Transparent = Color.Transparent

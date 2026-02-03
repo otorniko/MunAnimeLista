@@ -1,5 +1,7 @@
 package com.otorniko.munanimelista.ui.components
 
+import android.R.attr.onClick
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +75,9 @@ fun AnimeDetailsScreen(
     onBackClick: () -> Unit,
     onAnimeClick: (Int) -> Unit,
     onStatusChanged: () -> Unit,
-    viewModel: AnimeDetailsViewModel = viewModel()
+    viewModel: AnimeDetailsViewModel = viewModel(),
+    originRoute: String,
+    onBackToListClick: () -> Unit
 ) {
     LaunchedEffect(animeId) { viewModel.loadAnime(animeId) }
     val animeState by viewModel.animeDetails.collectAsState()
@@ -98,7 +102,7 @@ fun AnimeDetailsScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 title = {
-                    Box(modifier = Modifier.clickable {}) {
+                    Box(modifier = Modifier.clickable { onBackToListClick() }.padding(start = 16.dp, end = 8.dp)) {
                         Text(
                             "Mun Anime Lista",
                             style = MaterialTheme.typography.titleLarge,
@@ -327,10 +331,18 @@ fun AnimeDetailsScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
+                        // Related Anime
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 160.dp,
+                                top = 8.dp,
+                                bottom = 8.dp
+                            )
                         ) {
                             items(safeRelatedAnime) { related ->
+                                //Log.d("RelDebug", "ID: ${related.node.id} | Title: ${related.node.title} | Alternative titles: ${related.node.alternativeTitles}")
                                 Column(
                                     modifier = Modifier
                                         .width(100.dp)
@@ -346,8 +358,7 @@ fun AnimeDetailsScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Text(
-                                        text = related.node.alternativeTitles?.en
-                                            ?: related.node.title,
+                                        text = related.node.getDisplayTitles(preferEnglish).first,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                         style = MaterialTheme.typography.bodySmall
@@ -362,8 +373,6 @@ fun AnimeDetailsScreen(
                             }
                         }
                     }
-                    // TODO
-                    // No title == not anime?
                     if (anime.recommendations.isNotEmpty()) {
                         Text(
                             text = "Recommendations",
@@ -373,6 +382,12 @@ fun AnimeDetailsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         LazyRow(
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 160.dp,
+                                top = 8.dp,
+                                bottom = 8.dp
+                            ),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(anime.recommendations) { rec ->
@@ -391,7 +406,7 @@ fun AnimeDetailsScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Text(
-                                        text = rec.node.alternativeTitles?.en ?: rec.node.title,
+                                        text = rec.node.getDisplayTitles(preferEnglish).first,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                         style = MaterialTheme.typography.bodySmall
