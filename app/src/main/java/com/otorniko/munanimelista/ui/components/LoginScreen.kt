@@ -31,31 +31,28 @@ fun LoginScreen(clientId: String) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
         Text("Welcome to Mun Anime Lista", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(onClick = {
             val verifier = generateVerifier()
-
             // todo
             // Ideally use a specialized storage, but SharedPrefs works for the prototype
             context.getSharedPreferences("auth_prefs", 0).edit {
                 putString("temp_verifier", verifier)
             }
-
             // todo
             // We use 'plain' challenge method for simplicity (verifier = challenge)
             val loginUrl = "https://myanimelist.net/v1/oauth2/authorize" +
-                    "?response_type=code" +
-                    "&client_id=$clientId" +
-                    "&code_challenge=$verifier" +
-                    "&code_challenge_method=plain" +
-                    "&redirect_uri=munanimelista://auth"
-
+                           "?response_type=code" +
+                           "&client_id=$clientId" +
+                           "&code_challenge=$verifier" +
+                           "&code_challenge_method=plain" +
+                           "&redirect_uri=munanimelista://auth"
             val intent = Intent(Intent.ACTION_VIEW, loginUrl.toUri())
             context.startActivity(intent)
         }) {

@@ -12,15 +12,14 @@ import kotlinx.coroutines.flow.map
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(private val context: Context) {
-
     companion object {
         val PREFER_ENGLISH_KEY = booleanPreferencesKey("prefer_english_titles")
     }
 
     val preferEnglishTitles: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PREFER_ENGLISH_KEY] ?: true
-        }
+            .map { preferences ->
+                preferences[PREFER_ENGLISH_KEY] ?: true
+            }
 
     suspend fun setPreferEnglish(enabled: Boolean) {
         context.dataStore.edit { preferences ->

@@ -13,8 +13,8 @@ android {
         applicationId = "com.otorniko.munanimelista"
         minSdk = 24
         targetSdk = 35
-        versionCode = 27
-        versionName = "0.3.7-beta"
+        versionCode = 28
+        versionName = "0.3.8-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -22,9 +22,9 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                         )
         }
     }
 
@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-
     // --- MANUAL ADDITIONS ---
     implementation(libs.retrofit)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
@@ -67,7 +66,6 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.ui)
-
     // --- TESTING ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

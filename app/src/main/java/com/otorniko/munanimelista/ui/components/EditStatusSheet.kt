@@ -46,18 +46,17 @@ import com.otorniko.munanimelista.ui.theme.Transparent
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun EditStatusSheet(
-    initialStatus: ListStatus?,
-    initialScore: Int,
-    initialProgress: Int,
-    maxEpisodes: Int,
-    onDismiss: () -> Unit,
-    onSave: (ListStatus, Int, Int) -> Unit,
-    onDelete: () -> Unit
-) {
+        initialStatus: ListStatus?,
+        initialScore: Int,
+        initialProgress: Int,
+        maxEpisodes: Int,
+        onDismiss: () -> Unit,
+        onSave: (ListStatus, Int, Int) -> Unit,
+        onDelete: () -> Unit
+                   ) {
     var selectedStatus by remember { mutableStateOf(initialStatus ?: ListStatus.PlanToWatch) }
     var score by remember { mutableIntStateOf(initialScore) }
     var progress by remember { mutableIntStateOf(initialProgress) }
-
     val listState = rememberLazyListState()
     val allStatuses = ListStatus.entries
 
@@ -69,44 +68,44 @@ fun EditStatusSheet(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 32.dp),
-    ) {
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+                    .padding(bottom = 32.dp),
+          ) {
         Text("Update Status", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
         Text("Status", style = MaterialTheme.typography.labelLarge)
         LazyRow(
-            state = listState,
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+                state = listState,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+               ) {
             items(ListStatus.entries) { status ->
                 FilterChip(
-                    selected = selectedStatus == status,
-                    onClick = {
-                        selectedStatus = status
-
-                        if (status == ListStatus.Completed && maxEpisodes > 0) {
-                            progress = maxEpisodes
-                        }
-                    },
-                    label = { Text(status.label) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedLeadingIconColor = MaterialTheme.colorScheme.primary,
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
                         selected = selectedStatus == status,
-                        borderColor = if (selectedStatus == status) Transparent else MaterialTheme.colorScheme.outlineVariant,
-                        borderWidth = 1.dp
-                    ),
-                )
+                        onClick = {
+                            selectedStatus = status
+
+                            if (status == ListStatus.Completed && maxEpisodes > 0) {
+                                progress = maxEpisodes
+                            }
+                        },
+                        label = { Text(status.label) },
+                        colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                                    ),
+                        border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = selectedStatus == status,
+                                borderColor = if (selectedStatus == status) Transparent else MaterialTheme.colorScheme.outlineVariant,
+                                borderWidth = 1.dp
+                                                                    ),
+                          )
             }
         }
 
@@ -118,18 +117,18 @@ fun EditStatusSheet(
                     Text("-", style = MaterialTheme.typography.titleLarge)
                 }
                 Slider(
-                    value = score.toFloat(),
-                    onValueChange = { score = it.toInt() },
-                    valueRange = 0f..10f,
-                    steps = 9,
-                    modifier = Modifier.weight(1f),
-                    colors = (SliderDefaults.colors(
-                        activeTrackColor = BrandDarkBlue,
-                        inactiveTickColor = BrandDarkBlue,
-                        inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
-                        thumbColor = BrandDarkBlue
-                    ))
-                )
+                        value = score.toFloat(),
+                        onValueChange = { score = it.toInt() },
+                        valueRange = 0f..10f,
+                        steps = 9,
+                        modifier = Modifier.weight(1f),
+                        colors = (SliderDefaults.colors(
+                                activeTrackColor = BrandDarkBlue,
+                                inactiveTickColor = BrandDarkBlue,
+                                inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
+                                thumbColor = BrandDarkBlue
+                                                       ))
+                      )
                 IconButton(onClick = { score++ }) {
                     Text("+", style = MaterialTheme.typography.titleLarge)
                 }
@@ -138,24 +137,24 @@ fun EditStatusSheet(
             HorizontalDivider(Modifier.padding(vertical = 16.dp))
             if (maxEpisodes != 1) {
                 Text(
-                    "Progress: $progress / ${if (maxEpisodes > 0) maxEpisodes else "?"}",
-                    style = MaterialTheme.typography.labelLarge
-                )
+                        "Progress: $progress / ${if (maxEpisodes > 0) maxEpisodes else "?"}",
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { if (progress > 0) progress-- }) {
                         Text("-", style = MaterialTheme.typography.titleLarge)
                     }
                     Slider(
-                        value = progress.toFloat(),
-                        onValueChange = { progress = it.toInt() },
-                        valueRange = 0f..(if (maxEpisodes > 0) maxEpisodes.toFloat() else 100f),
-                        modifier = Modifier.weight(1f),
-                        colors = (SliderDefaults.colors(
-                            activeTrackColor = BrandDarkBlue,
-                            inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
-                            thumbColor = BrandDarkBlue
-                        ))
-                    )
+                            value = progress.toFloat(),
+                            onValueChange = { progress = it.toInt() },
+                            valueRange = 0f..(if (maxEpisodes > 0) maxEpisodes.toFloat() else 100f),
+                            modifier = Modifier.weight(1f),
+                            colors = (SliderDefaults.colors(
+                                    activeTrackColor = BrandDarkBlue,
+                                    inactiveTrackColor = BrandDarkBlue.copy(alpha = 0.2f),
+                                    thumbColor = BrandDarkBlue
+                                                           ))
+                          )
                     IconButton(onClick = { progress++ }) {
                         Text("+", style = MaterialTheme.typography.titleLarge)
                     }
@@ -164,12 +163,12 @@ fun EditStatusSheet(
         }
         Spacer(Modifier.height(24.dp))
         Button(
-            onClick = { onSave(selectedStatus, score, progress) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BrandDarkBlue
-            )
-        ) {
+                onClick = { onSave(selectedStatus, score, progress) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                        containerColor = BrandDarkBlue
+                                                    )
+              ) {
             Text("Save Changes")
         }
 
@@ -179,18 +178,18 @@ fun EditStatusSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedButton(
-                onClick = onDelete,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                    onClick = onDelete,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                                                                ),
+                    modifier = Modifier.fillMaxWidth()
+                          ) {
                 Icon(
-                    Icons.Default.Delete,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Remove from List")
             }

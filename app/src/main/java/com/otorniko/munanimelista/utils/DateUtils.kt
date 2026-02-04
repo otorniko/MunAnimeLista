@@ -6,7 +6,6 @@ fun getSeasonString(dateStr: String?): String? {
         val parts = dateStr.split("-")
         val year = parts[0]
         val month = if (parts.size > 1) parts[1].toInt() else 1
-
         val season = when (month) {
             1, 2, 3 -> "Winter"
             4, 5, 6 -> "Spring"

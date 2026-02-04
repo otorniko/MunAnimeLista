@@ -6,7 +6,7 @@ import androidx.core.content.edit
 
 class TokenManager(context: Context) {
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     fun saveToken(token: String, refreshToken: String? = null) {
         prefs.edit {

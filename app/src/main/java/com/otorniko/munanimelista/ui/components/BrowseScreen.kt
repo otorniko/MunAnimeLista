@@ -38,12 +38,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseScreen(
-    title: String,
-    viewModel: AnimeViewModel,
-    onOpenDrawer: () -> Unit,
-    onAnimeClick: (Int) -> Unit
-) {
-
+        title: String,
+        viewModel: AnimeViewModel,
+        onOpenDrawer: () -> Unit,
+        onAnimeClick: (Int) -> Unit
+                ) {
     val animeList by viewModel.browseList.collectAsState()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -53,54 +52,54 @@ fun BrowseScreen(
         }
     }
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                title = { Text(title) },
-                navigationIcon = {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+            topBar = {
+                CenterAlignedTopAppBar(
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                                                                               ),
+                        title = { Text(title) },
+                        navigationIcon = {
+                            IconButton(onClick = onOpenDrawer) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            }
+                        }
+                                      )
+            },
+            floatingActionButton = {
+                if (showScrollToTop) {
+                    FloatingActionButton(
+                            onClick = {
+                                scope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
+                            },
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ) {
+                        Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = "Scroll to Top"
+                            )
                     }
                 }
-            )
-        },
-        floatingActionButton = {
-            if (showScrollToTop) {
-                FloatingActionButton(
-                    onClick = {
-                        scope.launch {
-                            listState.animateScrollToItem(0)
-                        }
-                    },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Scroll to Top"
-                    )
-                }
             }
-        }
-    ) { padding ->
+            ) { padding ->
         Surface(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize(),
-        ) {
-            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-            ) {
+                        .padding(padding)
+                        .fillMaxSize(),
+               ) {
+            Column(
+                    modifier = Modifier
+                            .fillMaxSize()
+                  ) {
                 LazyColumn(
-                    state = listState,
-                    modifier = Modifier.weight(1f)
-                ) {
+                        state = listState,
+                        modifier = Modifier.weight(1f)
+                          ) {
                     itemsIndexed(animeList) { index, anime ->
                         AnimeRow(anime = anime, onClick = { onAnimeClick(anime.id) })
                         if (index >= animeList.lastIndex && !viewModel.isBrowseLoading) {
@@ -112,11 +111,11 @@ fun BrowseScreen(
                     if (viewModel.isBrowseLoading) {
                         item {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
+                                    modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                               ) {
                                 CircularProgressIndicator()
                             }
                         }

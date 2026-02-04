@@ -20,29 +20,24 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
     private val json = Json { ignoreUnknownKeys = true }
     private val _animeDetails = MutableStateFlow<AnimeNode?>(null)
     val animeDetails = _animeDetails.asStateFlow()
-
     private val settingsRepo = SettingsRepository(application)
-
     val preferEnglish = settingsRepo.preferEnglishTitles
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
-
-
+            .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = true
+                    )
     private val retrofit by lazy {
         val client = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .build()
+                .addInterceptor(AuthInterceptor(tokenManager))
+                .build()
 
         Retrofit.Builder()
-            .baseUrl("https://api.myanimelist.net/v2/")
-            .client(client)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
+                .baseUrl("https://api.myanimelist.net/v2/")
+                .client(client)
+                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                .build()
     }
-
     private val api by lazy { retrofit.create(MalApi::class.java) }
 
     fun loadAnime(id: Int) {
@@ -61,14 +56,14 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
             try {
                 val currentAnime = _animeDetails.value ?: return@launch
                 val newStatus = api.updateMyListStatus(
-                    id = currentAnime.id,
-                    status = status.serialName,
-                    score = score,
-                    numWatchedEpisodes = progress
-                )
+                        id = currentAnime.id,
+                        status = status.name.lowercase(), //here
+                        score = score,
+                        numWatchedEpisodes = progress
+                                                      )
                 _animeDetails.value = currentAnime.copy(
-                    myListStatus = newStatus
-                )
+                        myListStatus = newStatus
+                                                       )
 
             } catch (e: Exception) {
                 Log.e("AnimeDetailsViewModel", "Failed to update status", e)
@@ -80,7 +75,6 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             try {
                 api.deleteMyListStatus(animeId)
-
                 val current = _animeDetails.value
                 if (current != null) {
                     _animeDetails.value = current.copy(myListStatus = null)

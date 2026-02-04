@@ -7,28 +7,28 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun AppDialog(
-    title: String,
-    message: String,
-    confirmText: String = "OK",
-    dismissText: String? = null,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
+        title: String,
+        message: String,
+        confirmText: String = "OK",
+        dismissText: String? = null,
+        onConfirm: () -> Unit,
+        onDismiss: () -> Unit
+             ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = title) },
-        text = { Text(text = message) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(text = confirmText)
-            }
-        },
-        dismissButton = {
-            if (dismissText != null) {
-                TextButton(onClick = onDismiss) {
-                    Text(text = dismissText)
+            onDismissRequest = onDismiss,
+            title = { Text(text = title) },
+            text = { Text(text = message) },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(text = confirmText)
+                }
+            },
+            dismissButton = {
+                if (dismissText != null) {
+                    TextButton(onClick = onDismiss) {
+                        Text(text = dismissText)
+                    }
                 }
             }
-        }
-    )
+               )
 }

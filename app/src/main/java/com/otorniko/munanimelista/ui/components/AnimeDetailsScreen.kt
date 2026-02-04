@@ -1,7 +1,5 @@
 package com.otorniko.munanimelista.ui.components
-
-import android.R.attr.onClick
-import android.util.Log
+//import com.otorniko.munanimelista.data.ListStatus
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -61,31 +59,29 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.otorniko.munanimelista.data.AnimeDetailsViewModel
+import com.otorniko.munanimelista.data.ListStatus
 import com.otorniko.munanimelista.data.MediaType
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
 import com.otorniko.munanimelista.utils.getDisplayTitles
 import com.otorniko.munanimelista.utils.getSeasonString
 import java.util.Locale
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeDetailsScreen(
-    animeId: Int,
-    onBackClick: () -> Unit,
-    onAnimeClick: (Int) -> Unit,
-    onStatusChanged: () -> Unit,
-    viewModel: AnimeDetailsViewModel = viewModel(),
-    originRoute: String,
-    onBackToListClick: () -> Unit
-) {
+        animeId: Int,
+        onBackClick: () -> Unit,
+        onAnimeClick: (Int) -> Unit,
+        onStatusChanged: () -> Unit,
+        viewModel: AnimeDetailsViewModel = viewModel(),
+        originRoute: String,
+        onBackToListClick: () -> Unit
+                      ) {
     LaunchedEffect(animeId) { viewModel.loadAnime(animeId) }
     val animeState by viewModel.animeDetails.collectAsState()
-
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val anime = animeState
-
     val preferEnglish by viewModel.preferEnglish.collectAsState()
 
     val (title, subtitle) = remember(anime, preferEnglish) {
@@ -93,46 +89,49 @@ fun AnimeDetailsScreen(
     }
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                title = {
-                    Box(modifier = Modifier.clickable { onBackToListClick() }.padding(start = 16.dp, end = 8.dp)) {
-                        Text(
-                            "Mun Anime Lista",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                    }
-                }
-            )
-        }, floatingActionButton = {
-            if (anime != null) {
-                ExtendedFloatingActionButton(text = {
-                    Text(if (anime.myListStatus == null) "Add to List" else "Edit Status")
-                }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true },
+            topBar = {
+                CenterAlignedTopAppBar(
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                                actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                                                                               ),
+                        title = {
+                            Box(
+                                    modifier = Modifier
+                                            .clickable { onBackToListClick() }
+                                            .padding(start = 16.dp, end = 8.dp)) {
+                                Text(
+                                        "Mun Anime Lista",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                            }
+                        }
+                                      )
+            }, floatingActionButton = {
+        if (anime != null) {
+            ExtendedFloatingActionButton(
+                    text = {
+                        Text(if (anime.myListStatus == null) "Add to List" else "Edit Status")
+                    }, icon = { Icon(Icons.Default.Edit, null) }, onClick = { showSheet = true },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                                        )
         }
-
-    ) { innerPadding ->
+    }
+            ) { innerPadding ->
         Surface(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-        ) {
+                modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
+               ) {
             if (animeState == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -147,45 +146,45 @@ fun AnimeDetailsScreen(
                 }
 
                 Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                    Box(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp)
+                      ) {
+                    Box(
+                            modifier = Modifier
+                                    .fillMaxWidth(),
+                            contentAlignment = Alignment.CenterStart
+                       ) {
                         Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                        )
+                                text = title,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                            )
                     }
 
                     if (subtitle != null) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.CenterStart
+                           ) {
                             Text(
-                                text = subtitle,
-                            )
+                                    text = subtitle,
+                                )
                         }
                     }
 
                     Row(modifier = Modifier.height(200.dp)) {
                         AsyncImage(
-                            model = anime.mainPicture?.large ?: anime.mainPicture?.medium,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .aspectRatio(0.7f)
-                                .clip(MaterialTheme.shapes.medium),
-                            contentScale = ContentScale.Crop
-                        )
+                                model = anime.mainPicture?.large ?: anime.mainPicture?.medium,
+                                contentDescription = null,
+                                modifier = Modifier
+                                        .fillMaxHeight()
+                                        .aspectRatio(0.7f)
+                                        .clip(MaterialTheme.shapes.medium),
+                                contentScale = ContentScale.Crop
+                                  )
 
                         Spacer(modifier = Modifier.width(16.dp))
 
@@ -193,36 +192,36 @@ fun AnimeDetailsScreen(
                             val score = "Score ${anime.mean ?: "N/A"}"
                             val myScore = "Me: ${anime.myListStatus?.score ?: "N/A"}"
                             Text(
-                                text = "$score  •  $myScore",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+                                    text = "$score  •  $myScore",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
 
                             Spacer(modifier = Modifier.height(8.dp))
                             val rankText = "Rank: #${anime.rank ?: "N/A"}"
                             val popText = "Popularity: #${anime.popularity ?: "N/A"}"
                             Text(
-                                text = "$rankText  •  $popText",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            SuggestionChip(
-                                onClick = {},
-                                label = {
-                                    val type = anime.mediaType?.name?.uppercase() ?: "TV"
-                                    val eps = anime.numEpisodes
-                                    val showCount = type != "MOVIE" && eps != 1
-
-                                    Text(
-                                        text = if (showCount) "$type • ${eps ?: "?"} eps" else type
-                                    )
-                                },
-                                colors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                        .copy(alpha = 0.1f),
-                                    labelColor = BrandDarkBlue
-                                ),
+                                    text = "$rankText  •  $popText",
+                                    style = MaterialTheme.typography.bodyMedium,
                                 )
+                            SuggestionChip(
+                                    onClick = {},
+                                    label = {
+                                        val type = anime.mediaType?.name?.uppercase() ?: "TV"
+                                        val eps = anime.numEpisodes
+                                        val showCount = type != "MOVIE" && eps != 1
+
+                                        Text(
+                                                text = if (showCount) "$type • ${eps ?: "?"} eps" else type
+                                            )
+                                    },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                            containerColor = MaterialTheme.colorScheme.primary
+                                                    .copy(alpha = 0.1f),
+                                            labelColor = BrandDarkBlue
+                                                                                        ),
+                                          )
                             Spacer(modifier = Modifier.height(8.dp))
-                            var displayText = "Unaired"
+                            var displayText: String
                             if (anime.startDate != null) {
                                 val startStr = remember(anime.startSeason) {
                                     anime.startSeason?.let {
@@ -238,206 +237,205 @@ fun AnimeDetailsScreen(
                                     else -> "$startStr - $endStr"
                                 }
                                 Text(
-                                    text = displayText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                    maxLines = 2,
-                                    minLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                        text = displayText,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(vertical = 4.dp),
+                                        maxLines = 2,
+                                        minLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                             }
-
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.Top
+                       ) {
                         // Studio
-                        val studioName = anime.studios?.firstOrNull()?.name ?: "Unknown"
+                        val studioName = anime.studios.firstOrNull()?.name ?: "Unknown"
                         AnimeInfoItem(
-                            icon = Icons.Default.Business,
-                            label = "Studio",
-                            value = studioName,
-                            modifier = Modifier.weight(1f)
-                        )
-
+                                icon = Icons.Default.Business,
+                                label = "Studio",
+                                value = studioName,
+                                modifier = Modifier.weight(1f)
+                                     )
                         // Source
                         val sourceName = anime.source?.replace("_", " ")
-                            ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-                            ?: "-"
+                                                 ?.replaceFirstChar {
+                                                     if (it.isLowerCase()) it.titlecase(
+                                                             Locale.getDefault()
+                                                                                       ) else it.toString()
+                                                 }
+                                         ?: "-"
                         AnimeInfoItem(
-                            icon = Icons.AutoMirrored.Filled.MenuBook,
-                            label = "Source",
-                            value = sourceName,
-                            modifier = Modifier.weight(1f)
-                        )
-
+                                icon = Icons.AutoMirrored.Filled.MenuBook,
+                                label = "Source",
+                                value = sourceName,
+                                modifier = Modifier.weight(1f)
+                                     )
                         // Rating
                         val ratingName = anime.rating?.label?.split(" -")?.get(0) ?: "-"
                         AnimeInfoItem(
-                            icon = Icons.Default.Warning,
-                            label = "Rating", value = ratingName,
-                            modifier = Modifier.weight(1f)
-                        )
+                                icon = Icons.Default.Warning,
+                                label = "Rating", value = ratingName,
+                                modifier = Modifier.weight(1f)
+                                     )
                     }
-                    if (!anime.genres.isNullOrEmpty()) {
+                    if (anime.genres.isNotEmpty()) {
                         LazyRow(
-                            contentPadding = PaddingValues(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                               ) {
                             items(anime.genres) { genre ->
                                 SuggestionChip(
-                                    onClick = { /* Todo: Navigate */ },
-                                    label = { Text(genre.name) },
-                                    colors = SuggestionChipDefaults.suggestionChipColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    ),
-                                    border = null
-                                )
+                                        onClick = { /* Todo: Navigate */ },
+                                        label = { Text(genre.name) },
+                                        colors = SuggestionChipDefaults.suggestionChipColors(
+                                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                                                            ),
+                                        border = null
+                                              )
                             }
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                     }
 
                     Text(
-                        text = "Synopsis",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                            text = "Synopsis",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     Spacer(modifier = Modifier.height(4.dp))
                     val cleanSynopsis = remember(anime.synopsis) {
                         anime.synopsis?.replace("[Written by MAL Rewrite]", "")
-                            ?.replace(Regex("\\(Source: .*\\)"), "")?.trim()
-                            ?: "No synopsis available."
+                                ?.replace(Regex("\\(Source: .*\\)"), "")?.trim()
+                        ?: "No synopsis available."
                     }
 
                     ExpandableText(
-                        text = cleanSynopsis, modifier = Modifier.fillMaxWidth()
-
-                    )
+                            text = cleanSynopsis, modifier = Modifier.fillMaxWidth()
+                                  )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     if (safeRelatedAnime.isNotEmpty()) {
                         Text(
-                            text = "Related Anime",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                                text = "Related Anime",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         Spacer(modifier = Modifier.height(8.dp))
-
                         // Related Anime
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(
-                                start = 16.dp,
-                                end = 160.dp,
-                                top = 8.dp,
-                                bottom = 8.dp
-                            )
-                        ) {
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(
+                                        start = 16.dp,
+                                        end = 160.dp,
+                                        top = 8.dp,
+                                        bottom = 8.dp
+                                                              )
+                               ) {
                             items(safeRelatedAnime) { related ->
-                                //Log.d("RelDebug", "ID: ${related.node.id} | Title: ${related.node.title} | Alternative titles: ${related.node.alternativeTitles}")
                                 Column(
-                                    modifier = Modifier
-                                        .width(100.dp)
-                                        .clickable {
-                                            onAnimeClick(related.node.id)
-                                        }) {
-                                    AsyncImage(
-                                        model = related.node.mainPicture?.medium,
-                                        contentDescription = null,
                                         modifier = Modifier
-                                            .height(150.dp)
-                                            .clip(MaterialTheme.shapes.small),
-                                        contentScale = ContentScale.Crop
-                                    )
+                                                .width(100.dp)
+                                                .clickable {
+                                                    onAnimeClick(related.node.id)
+                                                }) {
+                                    AsyncImage(
+                                            model = related.node.mainPicture?.medium,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                    .height(150.dp)
+                                                    .clip(MaterialTheme.shapes.small),
+                                            contentScale = ContentScale.Crop
+                                              )
                                     Text(
-                                        text = related.node.getDisplayTitles(preferEnglish).first,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+                                            text = related.node.getDisplayTitles(preferEnglish).first,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
                                     Text(
-                                        text = related.relationTypeFormatted
-                                            ?: related.relationType,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
+                                            text = related.relationTypeFormatted
+                                                   ?: related.relationType,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
                                 }
                             }
                         }
                     }
                     if (anime.recommendations.isNotEmpty()) {
                         Text(
-                            text = "Recommendations",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                                text = "Recommendations",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         Spacer(modifier = Modifier.height(8.dp))
 
                         LazyRow(
-                            contentPadding = PaddingValues(
-                                start = 16.dp,
-                                end = 160.dp,
-                                top = 8.dp,
-                                bottom = 8.dp
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                                contentPadding = PaddingValues(
+                                        start = 16.dp,
+                                        end = 160.dp,
+                                        top = 8.dp,
+                                        bottom = 8.dp
+                                                              ),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                               ) {
                             items(anime.recommendations) { rec ->
                                 Column(
-                                    modifier = Modifier
-                                        .width(100.dp)
-                                        .clickable {
-                                            onAnimeClick(rec.node.id)
-                                        }) {
-                                    AsyncImage(
-                                        model = rec.node.mainPicture?.medium,
-                                        contentDescription = null,
                                         modifier = Modifier
-                                            .height(150.dp)
-                                            .clip(MaterialTheme.shapes.small),
-                                        contentScale = ContentScale.Crop
-                                    )
+                                                .width(100.dp)
+                                                .clickable {
+                                                    onAnimeClick(rec.node.id)
+                                                }) {
+                                    AsyncImage(
+                                            model = rec.node.mainPicture?.medium,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                    .height(150.dp)
+                                                    .clip(MaterialTheme.shapes.small),
+                                            contentScale = ContentScale.Crop
+                                              )
                                     Text(
-                                        text = rec.node.getDisplayTitles(preferEnglish).first,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+                                            text = rec.node.getDisplayTitles(preferEnglish).first,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
                                 }
                             }
                         }
                     }
-                    if (showSheet && anime != null) {
+                    if (showSheet) {
                         ModalBottomSheet(
-                            onDismissRequest = { showSheet = false },
-                            sheetState = sheetState,
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ) {
+                                onDismissRequest = { showSheet = false },
+                                sheetState = sheetState,
+                                containerColor = MaterialTheme.colorScheme.surface
+                                        ) {
                             EditStatusSheet(
-                                initialStatus = anime.myListStatus?.status,
-                                initialScore = anime.myListStatus?.score ?: 0,
-                                initialProgress = anime.myListStatus?.numEpisodesWatched ?: 0,
-                                maxEpisodes = anime.numEpisodes ?: 0,
-                                onDismiss = { showSheet = false },
-                                onSave = { status, score, progress ->
-                                    viewModel.updateStatus(status, score, progress)
-                                    onStatusChanged()
-                                    showSheet = false
-                                },
-                                onDelete = {
-                                    viewModel.removeAnime(anime.id) {
-                                        showSheet = false
+                                    initialStatus = anime.myListStatus?.status
+                                                    ?: ListStatus.PlanToWatch,
+                                    initialScore = anime.myListStatus?.score ?: 0,
+                                    initialProgress = anime.myListStatus?.numEpisodesWatched ?: 0,
+                                    maxEpisodes = anime.numEpisodes ?: 0,
+                                    onDismiss = { showSheet = false },
+                                    onSave = { status, score, progress ->
+                                        viewModel.updateStatus(status, score, progress)
                                         onStatusChanged()
-                                    }
-                                })
+                                        showSheet = false
+                                    },
+                                    onDelete = {
+                                        viewModel.removeAnime(anime.id) {
+                                            showSheet = false
+                                            onStatusChanged()
+                                        }
+                                    })
                         }
                     }
                 }
@@ -448,68 +446,68 @@ fun AnimeDetailsScreen(
 
 @Composable
 fun ExpandableText(
-    text: String, modifier: Modifier = Modifier, minimizedMaxLines: Int = 4
-) {
+        text: String, modifier: Modifier = Modifier, minimizedMaxLines: Int = 4
+                  ) {
     var isExpanded by remember { mutableStateOf(false) }
     var isOverflowing by remember { mutableStateOf(false) }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize()
-            .clickable { isExpanded = !isExpanded }) {
+            modifier = modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
+                    .clickable { isExpanded = !isExpanded }) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = if (isExpanded) Int.MAX_VALUE else minimizedMaxLines,
-            overflow = TextOverflow.Ellipsis,
-            onTextLayout = { textLayoutResult ->
-                if (!isExpanded && textLayoutResult.hasVisualOverflow) {
-                    isOverflowing = true
-                }
-            })
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = if (isExpanded) Int.MAX_VALUE else minimizedMaxLines,
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { textLayoutResult ->
+                    if (!isExpanded && textLayoutResult.hasVisualOverflow) {
+                        isOverflowing = true
+                    }
+                })
 
         if (isOverflowing && !isExpanded) {
             Text(
-                text = "Read more...",
-                style = MaterialTheme.typography.labelLarge
-            )
+                    text = "Read more...",
+                    style = MaterialTheme.typography.labelLarge
+                )
         } else if (isExpanded) {
             Text(
-                text = "Show less",
-                style = MaterialTheme.typography.labelLarge
-            )
+                    text = "Show less",
+                    style = MaterialTheme.typography.labelLarge
+                )
         }
     }
 }
 
 @Composable
 fun AnimeInfoItem(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+        icon: ImageVector,
+        label: String,
+        value: String,
+        modifier: Modifier = Modifier
+                 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
-            imageVector = icon,
-            contentDescription = label,
-            //en osaa päättää...
-           // tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
+                imageVector = icon,
+                contentDescription = label,
+                //en osaa päättää...
+                // tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-          //  color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                //  color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
     }
 }

@@ -18,44 +18,42 @@ import com.otorniko.munanimelista.ui.theme.Transparent
 
 @Composable
 fun SortChip(
-    label: String,
-    isSelected: Boolean,
-    isAscending: Boolean,
-    onClick: () -> Unit
-) {
+        label: String,
+        isSelected: Boolean,
+        isAscending: Boolean,
+        onClick: () -> Unit
+            ) {
     FilterChip(
-        selected = isSelected,
-        onClick = onClick,
-        label = { Text(label) },
-        leadingIcon =
-            if (isSelected) {
-            {
-                Icon(
-                    imageVector =
-                        if (isAscending) Icons.Default.ArrowUpward
-                        else Icons.Default.ArrowDownward,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        } else null,
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
             selected = isSelected,
-            borderColor =
-                if (isSelected) Transparent
-                else MaterialTheme.colorScheme.outlineVariant,
-            borderWidth = 1.dp
-        ),
-
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = BrandDarkBlue.copy(alpha = 0.1f),
-            selectedLabelColor = BrandDarkBlue,
-            selectedLeadingIconColor = BrandDarkBlue,
-            containerColor = BrandDarkBlue.copy(alpha = 0.1f),
-            labelColor = BrandDarkBlue
-
-        ),
-        shape = CircleShape
-    )
+            onClick = onClick,
+            label = { Text(label) },
+            leadingIcon =
+                    if (isSelected) {
+                        {
+                            Icon(
+                                    imageVector =
+                                            if (isAscending) Icons.Default.ArrowUpward
+                                            else Icons.Default.ArrowDownward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                        }
+                    } else null,
+            border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = isSelected,
+                    borderColor =
+                            if (isSelected) Transparent
+                            else MaterialTheme.colorScheme.outlineVariant,
+                    borderWidth = 1.dp
+                                                        ),
+            colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = BrandDarkBlue.copy(alpha = 0.1f),
+                    selectedLabelColor = BrandDarkBlue,
+                    selectedLeadingIconColor = BrandDarkBlue,
+                    containerColor = BrandDarkBlue.copy(alpha = 0.1f),
+                    labelColor = BrandDarkBlue
+                                                        ),
+            shape = CircleShape
+              )
 }

@@ -26,48 +26,55 @@ import kotlin.coroutines.cancellation.CancellationException
 class AnimeViewModel(application: Application) : AndroidViewModel(application) {
     private val tokenManager = TokenManager(application)
     private var _masterList = listOf<AnimeNode>()
-    private val _currentFilter = MutableStateFlow<ListStatus?>(null)
-    val currentFilter = _currentFilter.asStateFlow()
-    private var currentSort: AnimeSortOrder = AnimeSortOrder.TITLE
+
+    //private val _currentFilter = MutableStateFlow<ListStatus?>(null) // here
+    var currentTab by mutableStateOf<ListStatus?>(null)
+        private set // Protect external writes if you want
     private val _animeList = MutableStateFlow<List<AnimeNode>>(emptyList())
     private val _searchResults = MutableStateFlow<List<AnimeNode>?>(null)
     val visibleList = combine(_animeList, _searchResults) { myAnime, searchResults ->
         searchResults ?: myAnime
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    var currentOffset = 0
+    var isEndOfList = false
+    var isLoading by mutableStateOf(false)
+    var currentSort by mutableStateOf(UserListSort.LAST_UPDATED)
     private val json = Json { ignoreUnknownKeys = true }
     private val api by lazy { retrofit.create(MalApi::class.java) }
     private val _browseList = MutableStateFlow<List<AnimeNode>>(emptyList())
     val browseList = _browseList.asStateFlow()
     private var currentBrowseOffset = 0
-    private var currentRankingType: String = "all"
+    private var currentRankingType: RankingCategory = RankingCategory.ALL
     var isBrowseLoading by mutableStateOf(false)
     var currentSortType by mutableStateOf(SortType.LAST_UPDATED)
     var isSortAscending by mutableStateOf(false)
-
     private val _searchState = MutableStateFlow(TextFieldValue(""))
     val searchState = _searchState.asStateFlow()
-
     private val _isSearchBarVisible = MutableStateFlow(false)
     val isSearchBarVisible = _isSearchBarVisible.asStateFlow()
-
     private val retrofit by lazy {
         val client = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .build()
+                .addInterceptor(AuthInterceptor(tokenManager))
+                .build()
 
         Retrofit.Builder()
-            .baseUrl("https://api.myanimelist.net/v2/")
-            .client(client)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
+                .baseUrl("https://api.myanimelist.net/v2/")
+                .client(client)
+                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                .build()
     }
-    fun initBrowse(rankingType: String) {
+
+    fun initBrowse(rankingType: RankingCategory) {
         if (currentRankingType == rankingType && _browseList.value.isNotEmpty()) return
 
         currentRankingType = rankingType
         _browseList.value = emptyList()
         currentBrowseOffset = 0
         loadMoreBrowse()
+    }
+
+    init {
+        loadMoreUserList()
     }
 
     fun loadMoreBrowse() {
@@ -77,12 +84,12 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val response = api.getTopAnime(
-                    type = currentRankingType,
-                    offset = currentBrowseOffset,
-                    limit = 50
-                )
-
+                        type = currentRankingType.apiKey,
+                        offset = currentBrowseOffset,
+                        limit = 50
+                                              )
                 val newNodes = response.data.map { it.node }
+
                 _browseList.value += newNodes
                 currentBrowseOffset += 50
 
@@ -94,23 +101,49 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    init {
-        refresh()
+    fun loadMoreUserList() {
+        if (isLoading || isEndOfList) return
+        isLoading = true
+
+        viewModelScope.launch {
+            try {
+                val response = api.getUserAnimeList(
+                        status = currentTab?.apiValue,
+                        sort = currentSort.apiValue,
+                        offset = currentOffset,
+                        limit = 50
+                                                   )
+                val newNodes = response.data.map { it.node }
+
+                _animeList.value += newNodes
+                currentOffset += 50
+                if (newNodes.size < 50) {
+                    isEndOfList = true
+                }
+                if (newNodes.isEmpty()) {
+                    isEndOfList = true
+                }
+            } catch (e: Exception) {
+                Log.e("AnimeViewModel", "Error fetching data", e)
+            } finally {
+                isLoading = false
+
+            }
+        }
     }
 
     fun refresh() {
-        viewModelScope.launch {
-            try {
-                val response = api.getUserAnimeList()
-                val nodes = response.data.map { edge ->
-                    edge.node.copy(myListStatus = edge.listStatus)
-                }
-                _masterList = nodes
-                processList()
-            } catch (e: Exception) {
-                Log.e("AnimeViewModel", "Error fetching data", e)
-            }
-        }
+        currentOffset = 0
+        isEndOfList = false
+        _animeList.value = emptyList()
+
+        loadMoreUserList()
+    }
+
+    fun onTabSelected(status: ListStatus?) {
+        if (currentTab == status) return
+        currentTab = status
+        refresh()
     }
 
     private var searchJob: Job? = null
@@ -135,11 +168,6 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onSearchStateChange(newValue: TextFieldValue) {
         _searchState.value = newValue
-
-        //        _searchState.value = newValue.copy(
-//            selection = TextRange(newValue.text.length) // Always force cursor to end
-//        )
-
         val queryText = newValue.text
         search(queryText)
     }
@@ -151,24 +179,15 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleSearchBar(isOpen: Boolean) {
         _isSearchBarVisible.value = isOpen
-        if (!isOpen) {
-            // Optional: Clear text when closing explicitly
-            // _searchQuery.value = ""
-        }
-    }
-
-    fun filterByStatus(status: ListStatus?) {
-        _currentFilter.value = status
-        processList()
-    }
-
-    fun changeSortOrder(order: AnimeSortOrder) {
-        currentSort = order
-        processList()
+        //  if (!isOpen) {
+        // Optional: Clear text when closing explicitly
+        // _searchQuery.value = ""
+        // }
     }
 
     private fun processList() {
-        val filter = _currentFilter.value
+        //val filter = _currentFilter.value
+        val filter = currentTab
         var result = _masterList
         if (filter != null) {
             result = result.filter { it.myListStatus?.status == filter }
@@ -179,10 +198,12 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
                 if (isSortAscending) result.sortedBy { it.title.lowercase() }
                 else result.sortedByDescending { it.title.lowercase() }
             }
+
             SortType.SCORE -> {
                 if (isSortAscending) result.sortedBy { it.mean ?: 0.0 }
                 else result.sortedByDescending { it.mean ?: 0.0 }
             }
+
             SortType.LAST_UPDATED -> {
                 if (isSortAscending) result.sortedBy { it.myListStatus?.updatedAt }
                 else result.sortedByDescending { it.myListStatus?.updatedAt }
@@ -204,17 +225,15 @@ class AnimeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private val settingsRepo = SettingsRepository(application)
-
     val preferEnglish = settingsRepo.preferEnglishTitles
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+            .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = true
+                    )
 
 }
 
-enum class AnimeSortOrder { TITLE, SCORE }
 enum class SortType {
     TITLE, SCORE, LAST_UPDATED
 }
