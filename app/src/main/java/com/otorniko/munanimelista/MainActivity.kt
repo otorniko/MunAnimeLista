@@ -1,6 +1,5 @@
 package com.otorniko.munanimelista
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -63,6 +61,8 @@ import com.otorniko.munanimelista.ui.components.LoginScreen
 import com.otorniko.munanimelista.ui.components.Screen
 import com.otorniko.munanimelista.ui.components.SettingsScreen
 import com.otorniko.munanimelista.ui.theme.MunAnimeListaTheme
+import com.otorniko.munanimelista.utils.downloadApk
+import com.otorniko.munanimelista.utils.installApk
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
             var isLoggedIn by remember {
                 mutableStateOf(tokenManager.getToken() != null)
             }
+            var isDownloading by remember { mutableStateOf(false) }
 
             LaunchedEffect(retryTrigger) {
                 isError = false
@@ -347,12 +348,24 @@ class MainActivity : ComponentActivity() {
                         if (showUpdateDialog) {
                             AppDialog(
                                     title = "New Update Available!",
-                                    message = "A new version of the app is ready. Download it now to get the latest features.",
-                                    confirmText = "Update Now",
+                                    message = "A new version of the app is ready.",
+                                    confirmText = if (isDownloading) "Downloading..." else "Update Now",
                                     dismissText = "Later",
+                                    // Disable button while downloading to prevent double-clicks
                                     onConfirm = {
-                                        val intent = Intent(Intent.ACTION_VIEW, updateUrl.toUri())
-                                        context.startActivity(intent)
+                                        if (isDownloading) return@AppDialog
+                                        isDownloading = true
+                                        // Start the download process
+                                        scope.launch {
+                                            val apkFile = downloadApk(context, updateUrl)
+                                            if (apkFile != null) {
+                                                installApk(context, apkFile)
+                                                showUpdateDialog = false // Close dialog on success
+                                            } else {
+                                                // Show error toast or message
+                                                isDownloading = false
+                                            }
+                                        }
                                     },
                                     onDismiss = { showUpdateDialog = false }
                                      )
