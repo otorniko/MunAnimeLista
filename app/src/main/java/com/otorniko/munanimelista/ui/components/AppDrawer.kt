@@ -49,7 +49,7 @@ import com.otorniko.munanimelista.data.RankingCategory
 @Composable
 fun AppDrawerContent(
         onCategoryClick: (RankingCategory) -> Unit,
-        onMyListClick: (ListStatus) -> Unit,
+        onMyListClick: (ListStatus?) -> Unit,
         onSettingsClick: () -> Unit
                     ) {
     val context = LocalContext.current
@@ -114,7 +114,7 @@ fun AppDrawerContent(
                         modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
-                                .clickable { onMyListClick(ListStatus.PlanToWatch) } // todo fix to .all
+                                .clickable { onMyListClick(null) }
                                 .padding(start = 16.dp, end = 8.dp),
                         contentAlignment = Alignment.CenterStart
                    ) {
@@ -132,7 +132,7 @@ fun AppDrawerContent(
 
             AnimatedVisibility(visible = isMyListExpanded) {
                 Column {
-                    ListStatus.entries.filter { it != ListStatus.PlanToWatch }.forEach { tab ->
+                    ListStatus.entries.forEach { tab ->
                         NavigationDrawerItem(
                                 label = { Text(tab.label) },
                                 selected = false,

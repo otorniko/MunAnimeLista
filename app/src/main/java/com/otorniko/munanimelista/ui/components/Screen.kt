@@ -5,8 +5,9 @@ import com.otorniko.munanimelista.data.RankingCategory
 
 sealed class Screen(val route: String) {
     object AnimeList : Screen("anime_list?status={status}") {
-        fun createRoute(tab: ListStatus): String {
-            return "anime_list?status=${tab.name}"
+        fun createRoute(tab: ListStatus?): String {
+            val statusStr = tab?.name ?: "ALL"
+            return "anime_list?status=$statusStr"
         }
     }
 

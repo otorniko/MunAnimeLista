@@ -62,8 +62,10 @@ import com.otorniko.munanimelista.data.AnimeDetailsViewModel
 import com.otorniko.munanimelista.data.ListStatus
 import com.otorniko.munanimelista.data.MediaType
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
+import com.otorniko.munanimelista.utils.getAggregateRank
 import com.otorniko.munanimelista.utils.getDisplayTitles
 import com.otorniko.munanimelista.utils.getSeasonString
+import com.otorniko.munanimelista.utils.isFutureDate
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,7 +191,7 @@ fun AnimeDetailsScreen(
                         Spacer(modifier = Modifier.width(16.dp))
 
                         Column {
-                            val score = "Score ${anime.mean ?: "N/A"}"
+                            val score = "Score: ${anime.mean ?: "N/A"}"
                             val myScore = "Me: ${anime.myListStatus?.score ?: "N/A"}"
                             Text(
                                     text = "$score  •  $myScore",
@@ -197,12 +199,53 @@ fun AnimeDetailsScreen(
                                 )
 
                             Spacer(modifier = Modifier.height(8.dp))
-                            val rankText = "Rank: #${anime.rank ?: "N/A"}"
-                            val popText = "Popularity: #${anime.popularity ?: "N/A"}"
-                            Text(
-                                    text = "$rankText  •  $popText",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
+                            val rankText = "Rank:"// ${anime.rank ?: "N/A"}"
+                            val popText = "Popularity:"// ${anime.popularity ?: "N/A"}"
+                            val aggrText = "Aggregate:"// ${anime.getAggregateRank().toInt()}"
+                            Row() {
+                                Column() {
+                                    Text(
+                                            text = "Rank:",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    Text(
+                                            text = "${anime.rank ?: "N/A"}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column() {
+                                    Text(
+                                            text = "Popularity:",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    Text(
+                                            text = "${anime.popularity ?: "N/A"}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column() {
+                                    Text(
+                                            text = "Aggregate:",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    Text(
+                                            text = "${anime.getAggregateRank().toInt()}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                }
+                            }
+//                            Text(
+//                                    text = "$rankText  •  $popText  •  $aggrText",
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                )
+//                            Text(
+//                                    text = "${anime.rank ?: "N/A"}  •  ${anime.popularity ?: "N/A"}  •  ${
+//                                        anime.getAggregateRank().toInt()
+//                                    }",
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                )
                             SuggestionChip(
                                     onClick = {},
                                     label = {
@@ -221,7 +264,7 @@ fun AnimeDetailsScreen(
                                                                                         ),
                                           )
                             Spacer(modifier = Modifier.height(8.dp))
-                            var displayText: String
+                            var displayText: String = "Unaired"
                             if (anime.startDate != null) {
                                 val startStr = remember(anime.startSeason) {
                                     anime.startSeason?.let {
@@ -232,19 +275,20 @@ fun AnimeDetailsScreen(
                                     getSeasonString(anime.endDate)
                                 }
                                 displayText = when {
-                                    endStr == null -> "$startStr - Present"
+                                    isFutureDate(anime.startDate) -> "$startStr - Unaired"
+                                    endStr == null -> "$startStr"
                                     startStr == endStr -> startStr
                                     else -> "$startStr - $endStr"
                                 }
-                                Text(
-                                        text = displayText,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(vertical = 4.dp),
-                                        maxLines = 2,
-                                        minLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
                             }
+                            Text(
+                                    text = displayText,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    maxLines = 2,
+                                    minLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                         }
                     }
 
