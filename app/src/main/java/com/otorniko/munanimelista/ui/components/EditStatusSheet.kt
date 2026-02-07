@@ -39,7 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.otorniko.munanimelista.data.ListStatus
+import com.otorniko.munanimelista.data.model.ListStatus
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
 import com.otorniko.munanimelista.ui.theme.Transparent
 

@@ -1,5 +1,5 @@
-package com.otorniko.munanimelista.ui.components
-//import com.otorniko.munanimelista.data.ListStatus
+package com.otorniko.munanimelista.ui.screens
+//import com.otorniko.munanimelista.data.model.ListStatus
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -58,9 +58,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.otorniko.munanimelista.data.AnimeDetailsViewModel
-import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.MediaType
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.model.MediaType
+import com.otorniko.munanimelista.data.viewmodels.AnimeDetailsViewModel
+import com.otorniko.munanimelista.ui.components.EditStatusSheet
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
 import com.otorniko.munanimelista.utils.getAggregateRank
 import com.otorniko.munanimelista.utils.getDisplayTitles

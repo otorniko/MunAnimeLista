@@ -1,5 +1,5 @@
-package com.otorniko.munanimelista.ui.components
-
+package com.otorniko.munanimelista.ui.screens
+//import com.otorniko.munanimelista.data.model.ListStatus
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -51,10 +51,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.otorniko.munanimelista.data.AnimeViewModel
-//import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.SortType
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.viewmodels.AnimeViewModel
+import com.otorniko.munanimelista.data.viewmodels.SortType
+import com.otorniko.munanimelista.ui.components.AnimeRow
+import com.otorniko.munanimelista.ui.components.SortChip
 import com.otorniko.munanimelista.ui.theme.BrandDarkBlue
 import kotlinx.coroutines.launch
 
@@ -172,7 +173,7 @@ fun AnimeListScreen(
                 val selectedTabIndex = if (currentFilter == null) {
                     0
                 } else {
-                    ListStatus.entries.indexOf(currentFilter) + 1 // here
+                    ListStatus.entries.indexOf(currentFilter) + 1
                 }
                 SecondaryScrollableTabRow(
                         selectedTabIndex = selectedTabIndex,
@@ -185,7 +186,7 @@ fun AnimeListScreen(
                                 selected = selectedTabIndex == index,
                                 onClick = {
                                     val newFilter =
-                                            if (index == 0) null else ListStatus.entries[index - 1] // here
+                                            if (index == 0) null else ListStatus.entries[index - 1]
                                     viewModel.onTabSelected(newFilter)
                                 },
                                 text = {
@@ -236,7 +237,7 @@ fun AnimeListScreen(
                     modifier = Modifier
                             .fillMaxSize()
                   ) {
-                if (!isSearchOpen) {
+                if (/*!isSearchOpen*/ false) {
                     Row(
                             modifier = Modifier
                                     .fillMaxWidth()

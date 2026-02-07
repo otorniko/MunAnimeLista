@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,19 +48,19 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.otorniko.munanimelista.data.AnimeViewModel
-import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.MalApi
-import com.otorniko.munanimelista.data.RankingCategory
-import com.otorniko.munanimelista.data.TokenManager
-import com.otorniko.munanimelista.ui.components.AnimeDetailsScreen
-import com.otorniko.munanimelista.ui.components.AnimeListScreen
+import com.otorniko.munanimelista.data.api.MalApi
+import com.otorniko.munanimelista.data.auth.TokenManager
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.model.RankingCategory
+import com.otorniko.munanimelista.data.viewmodels.AnimeViewModel
 import com.otorniko.munanimelista.ui.components.AppDialog
 import com.otorniko.munanimelista.ui.components.AppDrawerContent
-import com.otorniko.munanimelista.ui.components.BrowseScreen
-import com.otorniko.munanimelista.ui.components.LoginScreen
-import com.otorniko.munanimelista.ui.components.Screen
-import com.otorniko.munanimelista.ui.components.SettingsScreen
+import com.otorniko.munanimelista.ui.screens.AnimeDetailsScreen
+import com.otorniko.munanimelista.ui.screens.AnimeListScreen
+import com.otorniko.munanimelista.ui.screens.BrowseScreen
+import com.otorniko.munanimelista.ui.screens.LoginScreen
+import com.otorniko.munanimelista.ui.screens.Screen
+import com.otorniko.munanimelista.ui.screens.SettingsScreen
 import com.otorniko.munanimelista.ui.theme.MunAnimeListaTheme
 import com.otorniko.munanimelista.utils.downloadApk
 import com.otorniko.munanimelista.utils.installApk
@@ -71,6 +72,7 @@ import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             val context = LocalContext.current

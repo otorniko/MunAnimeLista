@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista.ui.components
+package com.otorniko.munanimelista.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.otorniko.munanimelista.data.SettingsRepository
+import com.otorniko.munanimelista.data.repos.SettingsRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
