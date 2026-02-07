@@ -10,11 +10,9 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 val BrandDarkBlue = Color(0xFF1565C0)
 val BrandLightBlue = Color(0xFFE6E8EF)
-
-// val BrandLightBlue = Color(0xFFDCE8F6) 15%
-// val BrandLightBlue = Color(0xFFC5D9ED) // 25%
-// val BrandLightBlue = Color(0xFFB9D1E8) // 35%
-//val BrandLightBlue = Color(0xFFD6E2EA) // blue grey
 val LightGrey = Color(0xFFC0C0C0)
+val DarkGrey = Color(0xFF121212)
+val MediumGrey = Color(0xFF333333)
 val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
 val Transparent = Color.Transparent

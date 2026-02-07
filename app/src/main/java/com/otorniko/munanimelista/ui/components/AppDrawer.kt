@@ -43,8 +43,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.RankingCategory
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.model.RankingCategory
 
 @Composable
 fun AppDrawerContent(

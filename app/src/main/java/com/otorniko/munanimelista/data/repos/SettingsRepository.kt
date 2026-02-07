@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista.data
+package com.otorniko.munanimelista.data.repos
 
 import android.content.Context
 import androidx.datastore.core.DataStore

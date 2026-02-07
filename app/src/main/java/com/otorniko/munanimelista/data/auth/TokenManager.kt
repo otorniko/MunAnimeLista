@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista.data
+package com.otorniko.munanimelista.data.auth
 
 import android.content.Context
 import android.content.SharedPreferences

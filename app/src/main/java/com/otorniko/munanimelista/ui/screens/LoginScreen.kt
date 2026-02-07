@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista.ui.components
+package com.otorniko.munanimelista.ui.screens
 
 import android.content.Intent
 import android.util.Base64

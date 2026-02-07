@@ -1,7 +1,7 @@
-package com.otorniko.munanimelista.ui.components
+package com.otorniko.munanimelista.ui.screens
 
-import com.otorniko.munanimelista.data.ListStatus
-import com.otorniko.munanimelista.data.RankingCategory
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.model.RankingCategory
 
 sealed class Screen(val route: String) {
     object AnimeList : Screen("anime_list?status={status}") {

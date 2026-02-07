@@ -1,10 +1,16 @@
-package com.otorniko.munanimelista.data
+package com.otorniko.munanimelista.data.viewmodels
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.otorniko.munanimelista.data.api.MalApi
+import com.otorniko.munanimelista.data.auth.AuthInterceptor
+import com.otorniko.munanimelista.data.auth.TokenManager
+import com.otorniko.munanimelista.data.model.AnimeNode
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.repos.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +30,7 @@ class AnimeDetailsViewModel(application: Application) : AndroidViewModel(applica
     val preferEnglish = settingsRepo.preferEnglishTitles
             .stateIn(
                     scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
+                    started = SharingStarted.Companion.WhileSubscribed(5000),
                     initialValue = true
                     )
     private val retrofit by lazy {

@@ -1,6 +1,6 @@
 package com.otorniko.munanimelista.utils
 
-import com.otorniko.munanimelista.data.AnimeNode
+import com.otorniko.munanimelista.data.model.AnimeNode
 import kotlin.math.log10
 import kotlin.math.max
 

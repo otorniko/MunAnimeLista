@@ -26,9 +26,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.otorniko.munanimelista.data.AnimeNode
-import com.otorniko.munanimelista.data.AnimeViewModel
-import com.otorniko.munanimelista.data.ListStatus
+import com.otorniko.munanimelista.data.model.AnimeNode
+import com.otorniko.munanimelista.data.model.ListStatus
+import com.otorniko.munanimelista.data.viewmodels.AnimeViewModel
 import com.otorniko.munanimelista.ui.theme.LightGrey
 import com.otorniko.munanimelista.utils.getAggregateRank
 import com.otorniko.munanimelista.utils.getDisplayTitles

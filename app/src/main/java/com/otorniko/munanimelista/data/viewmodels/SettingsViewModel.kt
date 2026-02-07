@@ -1,8 +1,9 @@
-package com.otorniko.munanimelista.data
+package com.otorniko.munanimelista.data.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.otorniko.munanimelista.data.repos.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -13,7 +14,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val preferEnglish: StateFlow<Boolean> = repository.preferEnglishTitles
             .stateIn(
                     scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
+                    started = SharingStarted.Companion.WhileSubscribed(5000),
                     initialValue = true
                     )
 

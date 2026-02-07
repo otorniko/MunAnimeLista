@@ -1,4 +1,4 @@
-package com.otorniko.munanimelista.ui.components
+package com.otorniko.munanimelista.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +32,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.otorniko.munanimelista.data.AnimeViewModel
+import com.otorniko.munanimelista.data.viewmodels.AnimeViewModel
+import com.otorniko.munanimelista.ui.components.AnimeRow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
